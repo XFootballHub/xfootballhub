@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ahorcado de Equipos de Fútbol - XFootballHub</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap');
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #004d40, #1de9b6);
+    font-family: 'Montserrat', sans-serif;
+    color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  header h1 {
+    font-size: 2.8rem;
+    margin: 0;
+    letter-spacing: 4px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  #game-container {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 25px 30px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+  #word {
+    font-size: 3rem;
+    letter-spacing: 16px;
+    margin: 30px 0 40px 0;
+    word-wrap: break-word;
+  }
+  #letters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+  #letters button {
+    background: #00796b;
+    border: none;
+    color: #a7ffeb;
+    font-size: 1.3rem;
+    font-weight: 700;
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.25);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    user-select: none;
+  }
+  #letters button:hover:not(:disabled) {
+    background: #004d40;
+    transform: scale(1.1);
+  }
+  #letters button:disabled {
+    background: #263238;
+    color: #607d8b;
+    cursor: default;
+    transform: none !important;
+    box-shadow: none;
+  }
+  #message {
+    margin-top: 30px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    min-height: 48px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  #attempts {
+    margin-top: 15px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+  }
+  #restart-btn {
+    margin-top: 30px;
+    background: #1de9b6;
+    border: none;
+    color: #004d40;
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 12px 28px;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease;
+  }
+  #restart-btn:hover {
+    background: #00bfa5;
+  }
+  @media (max-width: 480px) {
+    #word {
+      font-size: 2.2rem;
+      letter-spacing: 10px;
+    }
+    #letters button {
+      width: 40px;
+      height: 40px;
+      font-size: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚽ Ahorcado de Equipos - XFootballHub</h1>
+</header>
+
+<div id="game-container">
+  <div id="word">_ _ _ _ _</div>
+  <div id="letters"></div>
+  <div id="attempts">Intentos restantes: 6</div>
+  <div id="message"></div>
+  <button id="restart-btn" style="display:none;">🔄 Jugar de nuevo</button>
+</div>
+
+<script>
+  // Equipos Europeos (~200) + Sudamericanos (50)
+  const equipos = [
+    // Europeos (reducción para ejemplo aquí, pero usa lista completa)
+    "REAL MADRID", "BARCELONA", "MANCHESTER UNITED", "CHELSEA", "LIVERPOOL",
+    "ARSENAL", "MANCHESTER CITY", "TOTTENHAM HOTSPUR", "JUVENTUS", "AC MILAN",
+    "INTER DE MILAN", "BAYERN MUNICH", "BORUSSIA DORTMUND", "PSG", "ATLÉTICO DE MADRID",
+    "NAPOLI", "ROMA", "LAZIO", "SEVILLA", "VILLARREAL", "VALENCIA", "PORTO",
+    "BENFICA", "SPORTING LISBOA", "CSKA MOSCÚ", "ZENIT", "OLYMPIQUE DE MARSELLA",
+    "OLYMPIQUE LYON", "MONACO", "RB LEIPZIG", "SCHALKE 04", "REAL SOCIEDAD",
+    "ATHLETIC CLUB", "GALATASARAY", "FENERBAHÇE", "BEŞİKTAŞ", "ANDERLECHT",
+    "BRUJAS", "CELTIC", "RANGERS", "PSV EINDHOVEN", "AJAX", "FEYENOORD",
+    "BAYER LEVERKUSEN", "VFB STUTTGART", "WERDER BREMEN", "DYNAMO KIEV",
+    "LOKOMOTIV MOSCÚ", "AEK ATENAS", "PAOK", "MARIBOR", "LUDOGORETS",
+    "STEAUA BUCAREST", "DINAMO BUCAREST", "PARTIZAN BELGRADO", "CRVENA ZVEZDA",
+    "LEICESTER CITY", "WOLVERHAMPTON", "EVERTON", "WEST HAM UNITED", "SCHALKE 04",
+    "UNION BERLIN", "RB SALZBURGO", "SAINT-ETIENNE", "BORDEAUX", "NIZA",
+    "TOULOUSE", "ANDERLECHT", "CERCLE BRUGGE", "STOKE CITY", "SHEFFIELD UNITED",
+    "BRISTOL CITY", "MILLWALL", "NORWICH CITY", "HUDDERSFIELD TOWN",
+    "NOTTINGHAM FOREST", "MIDDLESBROUGH", "DERBY COUNTY", "BLACKBURN ROVERS",
+    "SUNDERLAND", "LEEDS UNITED", "NEWCASTLE UNITED", "WATFORD", "BRIGHTON & HOVE ALBION",
+    "BURNLEY", "CRYSTAL PALACE", "SOUTHAMPTON", "BOURNEMOUTH", "FULHAM",
+    "CAMBRIDGE UNITED", "CHESTERFIELD", "BOLTON WANDERERS", "ROCHDALE",
+    "BURTON ALBION", "DONCASTER ROVERS", "WALSALL", "LINCOLN CITY", "SWINDON TOWN",
+    "ST. MIRREN", "HEART OF MIDLOTHIAN", "HAMILTON ACADEMICAL", "MOTHERWELL",
+    "KILMARNOCK", "DUNDEE UNITED", "ROSS COUNTY", "ST JOHNSTONE", "INVERNESS CT",
+    "LILLE", "RENNES", "NANTES", "DIJON", "MONTPELLIER", "STRASBURGO",
+    "METZ", "AMIENS", "ANGERS", "REIMS", "CAEN", "GÖTEBORG", "HELSINGBORG",
+    "ASTON VILLA", "SWANSEA CITY", "SHEFFIELD WEDNESDAY", "WIGAN ATHLETIC",
+    "ROTHERHAM UNITED", "GAIS", "HÄCKEN", "MALMÖ FF", "AIK ESTOCOLMO",
+    "DJURGÅRDENS IF", "HELSINGBORG", "NORRKÖPING", "ÖREBRO", "ELFSBORG",
+    "JÖNKÖPINGS SÖDRA", "FALKENBERG", "ÖSTERSUNDS FK", "ASTON VILLA",
+    // Sudamericanos (50)
+    "BOCA JUNIORS", "RIVER PLATE", "FLAMENGO", "CORINTHIANS", "PALMEIRAS",
+    "SANTOS", "GREMIO", "INTERNACIONAL", "ATLÉTICO MINEIRO", "CRUZEIRO",
+    "VASCO DA GAMA", "FLUMINENSE", "SAN LORENZO", "INDEPENDIENTE", "RACING CLUB",
+    "VÉLEZ SARSFIELD", "ESTUDIANTES", "DEFENSA Y JUSTICIA", "COLÓN",
+    "ARGENTINOS JUNIORS", "UNIVERSIDAD DE CHILE", "COLO-COLO",
+    "UNIVERSIDAD CATÓLICA", "OLIMPIA", "LIBERTAD", "CERRO PORTEÑO",
+    "NACIONAL", "PEÑAROL", "LDU QUITO", "BARCELONA SC", "EMELEC",
+    "DEPORTIVO CALI", "ATLÉTICO NACIONAL", "MILLONARIOS", "AMÉRICA DE CALI",
+    "SANTA FE", "JUNIOR", "AUDAX ITALIANO", "HUACHIPATO", "OLIMPIA ASUNCIÓN",
+    "BOTAFOGO", "ATLÉTICO PARANAENSE", "BAHIA", "FORTALEZA", "CEARÁ",
+    "ATHLETICO-PR", "SÃO PAULO"
+  ];
+
+  let palabra = "";
+  let errores = 0;
+  const maxErrores = 6;
+  let aciertos = [];
+
+  const wordDisplay = document.getElementById("word");
+  const lettersDiv = document.getElementById("letters");
+  const messageDiv = document.getElementById("message");
+  const attemptsDiv = document.getElementById("attempts");
+  const restartBtn = document.getElementById("restart-btn");
+
+  function elegirPalabra() {
+    palabra = equipos[Math.floor(Math.random() * equipos.length)].toUpperCase();
+    errores = 0;
+    aciertos = [];
+    messageDiv.textContent = "";
+    attemptsDiv.textContent = `Intentos restantes: ${maxErrores - errores}`;
+    restartBtn.style.display = "none";
+    crearBotones();
+    actualizarPalabra();
+  }
+
+  function actualizarPalabra() {
+    let display = "";
+
+    for (let letra of palabra) {
+      if (letra === " ") {
+        display += "  "; // espacio doble para separar palabras
+      } else if (aciertos.includes(letra)) {
+        display += letra + " ";
+      } else {
+        display += "_ ";
+      }
+    }
+    wordDisplay.textContent = display.trim();
+
+    if (!display.includes("_")) {
+      messageDiv.textContent = "🎉 ¡Ganaste!";
+      desactivarBotones();
+      restartBtn.style.display = "inline-block";
+    }
+  }
+
+  function crearBotones() {
+    lettersDiv.innerHTML = "";
+    const letras = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+    for (let letra of letras) {
+      const btn = document.createElement("button");
+      btn.textContent = letra;
+      btn.addEventListener("click", () => manejarLetra(letra, btn));
+      lettersDiv.appendChild(btn);
+    }
+  }
+
+  function manejarLetra(letra, boton) {
+    boton.disabled = true;
+
+    if (palabra.includes(letra)) {
+      aciertos.push(letra);
+      actualizarPalabra();
+    } else {
+      errores++;
+      attemptsDiv.textContent = `Intentos restantes: ${maxErrores - errores}`;
+      if (errores >= maxErrores) {
+        messageDiv.textContent = `💀 Perdiste. La palabra era: ${palabra}`;
+        desactivarBotones();
+        restartBtn.style.display = "inline-block";
+      }
+    }
+  }
+
+  function desactivarBotones() {
+    const botones = lettersDiv.querySelectorAll("button");
+    botones.forEach(btn => (btn.disabled = true));
+  }
+
+  restartBtn.addEventListener("click", elegirPalabra);
+
+  elegirPalabra();
+</script>
+
+</body>
+</html>
