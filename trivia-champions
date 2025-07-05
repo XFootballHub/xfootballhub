@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trivia Champions League - XFootballHub</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap');
+
+  body {
+    background: linear-gradient(135deg, #004d40, #1de9b6);
+    color: #f0f0f0;
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+  h1 {
+    margin-bottom: 10px;
+    font-size: 2.8rem;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    text-align: center;
+  }
+  #descripcion {
+    font-weight: 600;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  #pregunta {
+    font-size: 1.7rem;
+    margin-bottom: 25px;
+    max-width: 600px;
+    text-align: center;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  #opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 25px;
+  }
+  button.opcion {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 12px;
+    padding: 15px 20px;
+    color: #a7ffeb;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    user-select: none;
+    text-align: center;
+  }
+  button.opcion:hover:not(:disabled) {
+    background: #1de9b6;
+    color: #004d40;
+  }
+  button.opcion:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+  #resultado {
+    font-size: 1.4rem;
+    font-weight: 700;
+    min-height: 2rem;
+    margin-bottom: 25px;
+    text-align: center;
+    user-select: none;
+  }
+  #boton-siguiente {
+    background: #1de9b6;
+    border: none;
+    border-radius: 12px;
+    padding: 15px 40px;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #004d40;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    user-select: none;
+    transition: background-color 0.3s ease;
+    display: none;
+    margin-bottom: 30px;
+  }
+  #boton-siguiente:hover {
+    background: #00bfa5;
+  }
+  footer {
+    margin-top: auto;
+    font-size: 0.9rem;
+    color: #a7ffebaa;
+    padding: 15px 0 10px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<h1>🏆 Trivia Champions League</h1>
+<p id="descripcion">Pon a prueba tus conocimientos sobre la Champions League</p>
+
+<div id="pregunta">Cargando pregunta...</div>
+
+<div id="opciones"></div>
+
+<div id="resultado"></div>
+
+<button id="boton-siguiente">Siguiente</button>
+
+<footer>&copy; 2025 XFootballHub</footer>
+
+<script>
+const preguntas = [
+  { pregunta:"¿Qué equipo ganó la primera edición de la Copa de Europa en 1956?", opciones:["Real Madrid","AC Milan","Benfica","Barcelona"], correcta:"Real Madrid" },
+  { pregunta:"¿Quién es el máximo goleador histórico de la Champions League?", opciones:["Cristiano Ronaldo","Lionel Messi","Raúl González","Robert Lewandowski"], correcta:"Cristiano Ronaldo" },
+  { pregunta:"¿Qué club ganó la Champions League en 2019?", opciones:["Liverpool","Tottenham","Ajax","Barcelona"], correcta:"Liverpool" },
+  { pregunta:"¿Cuántas Champions League ha ganado el FC Barcelona hasta 2021?", opciones:["5","4","6","7"], correcta:"5" },
+  { pregunta:"¿Quién marcó el gol de la victoria en la final de 1998 para el Real Madrid?", opciones:["Predrag Mijatović","Raúl González","Fernando Hierro","Roberto Carlos"], correcta:"Predrag Mijatović" },
+  { pregunta:"¿En qué año ganó el Chelsea su primera Champions League?", opciones:["2012","2008","2006","2014"], correcta:"2012" },
+  { pregunta:"¿Qué entrenador ganó 3 Champions League consecutivas con el Real Madrid?", opciones:["Zinedine Zidane","Carlo Ancelotti","José Mourinho","Pep Guardiola"], correcta:"Zinedine Zidane" },
+  { pregunta:"¿Quién anotó 17 goles en la Champions League 2013-14, récord en una temporada?", opciones:["Cristiano Ronaldo","Lionel Messi","Karim Benzema","Robert Lewandowski"], correcta:"Cristiano Ronaldo" },
+  { pregunta:"¿Qué equipo derrotó al Manchester United 2-0 en la final de 2009?", opciones:["Barcelona","AC Milan","Inter de Milán","Juventus"], correcta:"Barcelona" },
+  { pregunta:"¿Quién fue el héroe del Chelsea en la tanda de penales en la final de 2005?", opciones:["Jerzy Dudek","Petr Čech","Andriy Shevchenko","Paolo Maldini"], correcta:"Jerzy Dudek" },
+  { pregunta:"¿Cuántas Champions League ha ganado el Bayern de Múnich hasta 2021?", opciones:["6","5","7","4"], correcta:"6" },
+  { pregunta:"¿Qué jugador ganó la Champions con tres clubes diferentes?", opciones:["Clarence Seedorf","Cristiano Ronaldo","Xavi Hernández","Andrés Iniesta"], correcta:"Clarence Seedorf" },
+  { pregunta:"¿Qué club tiene el récord de más finales consecutivas disputadas?", opciones:["Real Madrid","Bayern Múnich","AC Milan","Liverpool"], correcta:"Real Madrid" },
+  { pregunta:"¿Quién fue el máximo goleador de la Champions League 2011-12?", opciones:["Lionel Messi","Cristiano Ronaldo","Radamel Falcao","Karim Benzema"], correcta:"Lionel Messi" },
+  { pregunta:"¿Cuál es el estadio donde se jugó la final de la Champions League 2010?", opciones:["Santiago Bernabéu","Estadio de Wembley","Estadio Olímpico de Roma","Camp Nou"], correcta:"Estadio de Wembley" },
+  { pregunta:"¿Qué equipo perdió la final de la Champions League 2004 contra Porto?", opciones:["Monaco","Milan","Real Madrid","Bayern Múnich"], correcta:"Monaco" },
+  { pregunta:"¿Quién anotó el gol decisivo en la final de 2014, conocida como 'La Décima' para el Real Madrid?", opciones:["Sergio Ramos","Cristiano Ronaldo","Gareth Bale","Mario Götze"], correcta:"Sergio Ramos" },
+  { pregunta:"¿Qué país ha dado más campeones de la Champions League?", opciones:["España","Italia","Inglaterra","Alemania"], correcta:"España" },
+  { pregunta:"¿Quién fue el portero titular del FC Barcelona en la final de 2015?", opciones:["Marc-André ter Stegen","Víctor Valdés","Claudio Bravo","Jasper Cillessen"], correcta:"Marc-André ter Stegen" },
+  { pregunta:"¿Qué equipo tiene más títulos de Champions League después del Real Madrid?", opciones:["AC Milan","Liverpool","Bayern Múnich","Barcelona"], correcta:"AC Milan" },
+  { pregunta:"¿Quién anotó el gol del empate para Liverpool en la final de 2005?", opciones:["Steven Gerrard","Luis García","Xabi Alonso","Fernando Torres"], correcta:"Steven Gerrard" },
+  { pregunta:"¿En qué año se instauró el formato actual de la Champions League?", opciones:["1992","1995","1999","1988"], correcta:"1992" },
+  { pregunta:"¿Qué jugador argentino ganó la Champions League con el FC Barcelona?", opciones:["Lionel Messi","Sergio Agüero","Ángel Di María","Javier Mascherano"], correcta:"Lionel Messi" },
+  { pregunta:"¿Qué club inglés ganó la Champions League en 2012?", opciones:["Chelsea","Manchester United","Liverpool","Arsenal"], correcta:"Chelsea" },
+  { pregunta:"¿Quién anotó el gol ganador para el Real Madrid en la final de 2000?", opciones:["Raúl González","Fernando Morientes","Steve McManaman","Fernando Redondo"], correcta:"Fernando Morientes" },
+  { pregunta:"¿Cuál es el máximo número de títulos ganados por un entrenador en Champions League?", opciones:["4","3","5","2"], correcta:"4" },
+  { pregunta:"¿Quién fue el máximo goleador de la Champions League 2018-19?", opciones:["Lionel Messi","Cristiano Ronaldo","Mohamed Salah","Robert Lewandowski"], correcta:"Lionel Messi" },
+  { pregunta:"¿Qué equipo fue campeón de la Champions League en 1997?", opciones:["Borussia Dortmund","Juventus","Borussia Mönchengladbach","Bayern Múnich"], correcta:"Borussia Dortmund" },
+  { pregunta:"¿Qué jugador francés ganó la Champions League con el Real Madrid en 2018?", opciones:["Raphaël Varane","Karim Benzema","Paul Pogba","Antoine Griezmann"], correcta:"Raphaël Varane" },
+  { pregunta:"¿Cuántas finales de Champions League ha disputado Lionel Messi?", opciones:["4","5","3","6"], correcta:"4" },
+  { pregunta:"¿Qué club italiano ganó la Champions League en 2007?", opciones:["AC Milan","Inter de Milán","Roma","Juventus"], correcta:"AC Milan" },
+  { pregunta:"¿Quién fue el capitán del Liverpool en la final de 2005?", opciones:["Steven Gerrard","Jamie Carragher","Xabi Alonso","Luis García"], correcta:"Steven Gerrard" },
+  { pregunta:"¿Qué equipo ganó la final de Champions League 2003?", opciones:["AC Milan","Juventus","Real Madrid","Porto"], correcta:"AC Milan" },
+  { pregunta:"¿Cuál es el récord de goles en una sola edición de Champions League?", opciones:["17","14","21","19"], correcta:"17" },
+  { pregunta:"¿Quién es el jugador con más asistencias en la historia de la Champions League?", opciones:["Cristiano Ronaldo","Lionel Messi","Xavi Hernández","Andrés Iniesta"], correcta:"Lionel Messi" },
+  { pregunta:"¿Qué equipo ha disputado más finales sin ganarlas?", opciones:["Juventus","Valencia","Atlético de Madrid","Bayer Leverkusen"], correcta:"Juventus" },
+  { pregunta:"¿Qué entrenador ganó la Champions con el FC Porto en 2004?", opciones:["José Mourinho","Carlo Ancelotti","Alex Ferguson","Pep Guardiola"], correcta:"José Mourinho" },
+  { pregunta:"¿Qué jugador es conocido como 'La Pulga' y ha ganado varias Champions League?", opciones:["Lionel Messi","Neymar","Cristiano Ronaldo","Luis Suárez"], correcta:"Lionel Messi" },
+  { pregunta:"¿Qué equipo fue el primer campeón de la Champions League con un formato de grupos?", opciones:["Ajax","Real Madrid","AC Milan","Barcelona"], correcta:"Ajax" },
+  { pregunta:"¿Cuál fue el resultado final de la histórica final de 2005 entre Liverpool y AC Milan?", opciones:["3-3 (Liverpool ganó penales)","2-1 Liverpool","3-2 AC Milan","1-0 Liverpool"], correcta:"3-3 (Liverpool ganó penales)" },
+  { pregunta:"¿Qué jugador fue MVP de la final de 2019?", opciones:["Virgil van Dijk","Sadio Mané","Mohamed Salah","Alisson Becker"], correcta:"Virgil van Dijk" },
+  { pregunta:"¿Qué equipo es conocido como 'Los Merengues'?", opciones:["Real Madrid","Barcelona","Atlético de Madrid","Valencia"], correcta:"Real Madrid" },
+  { pregunta:"¿Quién fue el máximo goleador de la final de la Champions League 2012?", opciones:["Didier Drogba","Fernando Torres","Juan Mata","David Luiz"], correcta:"Didier Drogba" },
+  { pregunta:"¿Qué club español ha ganado la Champions League más veces?", opciones:["Real Madrid","Barcelona","Valencia","Atlético de Madrid"], correcta:"Real Madrid" },
+  { pregunta:"¿Quién fue el arquero titular del Real Madrid en la final de 2018?", opciones:["Keylor Navas","Iker Casillas","Thibaut Courtois","Kiko Casilla"], correcta:"Keylor Navas" },
+  { pregunta:"¿Qué jugador anotó el gol decisivo en la final de 2010?", opciones:["Andrés Iniesta","David Villa","Xavi Hernández","Carles Puyol"], correcta:"Andrés Iniesta" },
+  { pregunta:"¿Qué club inglés tiene más títulos de Champions League?", opciones:["Liverpool","Manchester United","Chelsea","Nottingham Forest"], correcta:"Liverpool" },
+  { pregunta:"¿Qué futbolista portugués ha ganado 5 Champions League?", opciones:["Cristiano Ronaldo","Eusébio","Pepe","Ricardo Carvalho"], correcta:"Cristiano Ronaldo" }
+];
+
+let indicePregunta = 0;
+let contadorCorrectas = 0;
+
+const preguntaEl = document.getElementById('pregunta');
+const opcionesEl = document.getElementById('opciones');
+const resultadoEl = document.getElementById('resultado');
+const botonSiguiente = document.getElementById('boton-siguiente');
+
+function cargarPregunta() {
+  resultadoEl.textContent = '';
+  botonSiguiente.style.display = 'none';
+
+  const actual = preguntas[indicePregunta];
+  preguntaEl.textContent = `${indicePregunta + 1}. ${actual.pregunta}`;
+
+  opcionesEl.innerHTML = '';
+  actual.opciones.forEach(opcion => {
+    const btn = document.createElement('button');
+    btn.textContent = opcion;
+    btn.classList.add('opcion');
+    btn.addEventListener('click', () => seleccionarRespuesta(btn, actual.correcta));
+    opcionesEl.appendChild(btn);
+  });
+}
+
+function seleccionarRespuesta(btn, correcta) {
+  // Desactivar botones
+  Array.from(opcionesEl.children).forEach(b => b.disabled = true);
+
+  if (btn.textContent === correcta) {
+    btn.style.backgroundColor = '#00e676'; // verde
+    resultadoEl.textContent = '¡Correcto! 🎉';
+    contadorCorrectas++;
+  } else {
+    btn.style.backgroundColor = '#ff1744'; // rojo
+    resultadoEl.textContent = `Incorrecto 😞. La respuesta correcta es: "${correcta}".`;
+    // Marcar la correcta
+    Array.from(opcionesEl.children).forEach(b => {
+      if (b.textContent === correcta) {
+        b.style.backgroundColor = '#00e676';
+      }
+    });
+  }
+
+  botonSiguiente.style.display = 'inline-block';
+}
+
+botonSiguiente.addEventListener('click', () => {
+  indicePregunta++;
+  if (indicePregunta < preguntas.length) {
+    cargarPregunta();
+  } else {
+    // Mostrar resultado final
+    preguntaEl.textContent = `¡Has completado el trivia! 🎉 Respuestas correctas: ${contadorCorrectas} de ${preguntas.length}.`;
+    opcionesEl.innerHTML = '';
+    resultadoEl.textContent = '';
+    botonSiguiente.style.display = 'none';
+  }
+});
+
+// Iniciar juego
+cargarPregunta();
+</script>
+
+</body>
+</html>
