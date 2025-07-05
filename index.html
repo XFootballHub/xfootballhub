@@ -64,6 +64,24 @@
     color: #a7ffebaa;
     padding: 20px 0 10px;
   }
+
+  /* Media Queries para móviles y tablets */
+  @media (max-width: 600px) {
+    header h1 {
+      font-size: 2.2rem;
+      letter-spacing: 3px;
+    }
+    .juego-item {
+      padding: 20px;
+      border-radius: 12px;
+    }
+    .juego-item h2 {
+      font-size: 1.4rem;
+    }
+    .juego-item p {
+      font-size: 1rem;
+    }
+  }
 </style>
 </head>
 <body>
@@ -80,7 +98,7 @@
   </div>
   <div class="juego-item" onclick="location.href='trivia-champions.html'">
     <h2>🏆 Trivia Champions League</h2>
-    <p>Pon a prueba tus conocimientos sobre la Champions League con 50 preguntas.</p>
+    <p>¿Cuánto sabes de la Champions League? ¡Pon a prueba tus conocimientos!</p>
   </div>
 </section>
 
