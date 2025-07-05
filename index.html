@@ -1,94 +1,99 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>XFootballHub - Menú de Juegos</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XFootballHub - Menú de Juegos</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap');
 
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #004d40, #1de9b6);
-    font-family: 'Montserrat', sans-serif;
-    color: #f0f0f0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px;
-  }
-  header {
-    text-align: center;
-    margin-bottom: 50px;
-  }
-  header h1 {
-    font-size: 3rem;
-    letter-spacing: 5px;
-    margin: 0;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  }
-  #menu-juegos {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    width: 100%;
-    max-width: 500px;
-  }
-  .juego-item {
-    background: rgba(255,255,255,0.1);
-    border-radius: 15px;
-    padding: 25px 30px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    text-align: center;
-  }
-  .juego-item:hover {
-    background: #1de9b6;
-    color: #004d40;
-    transform: scale(1.05);
-  }
-  .juego-item h2 {
-    margin: 0 0 10px 0;
-    font-size: 1.8rem;
-  }
-  .juego-item p {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-  footer {
-    margin-top: auto;
-    font-size: 0.9rem;
-    color: #a7ffebaa;
-    padding: 20px 0 10px;
-  }
-
-  /* Media Queries para móviles y tablets */
-  @media (max-width: 600px) {
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #004d40, #1de9b6);
+      font-family: 'Montserrat', sans-serif;
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
     header h1 {
-      font-size: 2.2rem;
-      letter-spacing: 3px;
+      font-size: 3rem;
+      letter-spacing: 5px;
+      margin: 0;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    #username {
+      font-weight: bold;
+      color: #a7ffeb;
+    }
+    #menu-juegos {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      max-width: 500px;
     }
     .juego-item {
-      padding: 20px;
-      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      padding: 25px 30px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      text-align: center;
+    }
+    .juego-item:hover {
+      background: #1de9b6;
+      color: #004d40;
+      transform: scale(1.05);
     }
     .juego-item h2 {
-      font-size: 1.4rem;
+      margin: 0 0 10px 0;
+      font-size: 1.8rem;
     }
     .juego-item p {
-      font-size: 1rem;
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
     }
-  }
-</style>
+    footer {
+      margin-top: auto;
+      font-size: 0.9rem;
+      color: #a7ffebaa;
+      padding: 20px 0 10px;
+    }
+
+    /* Media Queries para móviles y tablets */
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 2.2rem;
+        letter-spacing: 3px;
+      }
+      .juego-item {
+        padding: 20px;
+        border-radius: 12px;
+      }
+      .juego-item h2 {
+        font-size: 1.4rem;
+      }
+      .juego-item p {
+        font-size: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <header>
   <h1>XFootballHub</h1>
-  <p>¡Bienvenido! Selecciona un juego para comenzar a jugar.</p>
+  <p>¡Hola <span id="username">jugador</span>! Selecciona un juego para comenzar.</p>
 </header>
 
 <section id="menu-juegos">
@@ -109,6 +114,16 @@
 <footer>
   &copy; 2025 XFootballHub
 </footer>
+
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand(); // Expande la mini app dentro de Telegram
+
+  const user = tg.initDataUnsafe?.user;
+  if (user && user.first_name) {
+    document.getElementById('username').textContent = user.first_name;
+  }
+</script>
 
 </body>
 </html>
