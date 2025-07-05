@@ -26,6 +26,8 @@
   #descripcion {
     margin: 0 0 30px;
     font-weight: 600;
+    text-align: center;
+    max-width: 90vw;
   }
   /* Contenedor con scroll horizontal si la palabra es larga */
   #word-container {
@@ -40,9 +42,9 @@
   }
   .letter-box {
     border-bottom: 4px solid #1de9b6;
-    width: 32px;        /* Más pequeño para que quepa mejor */
+    width: 32px;
     height: 50px;
-    font-size: 2rem;    /* Letra más pequeña */
+    font-size: 2rem;
     text-align: center;
     text-transform: uppercase;
     user-select: none;
@@ -122,6 +124,34 @@
     color: #a7ffebaa;
     padding: 15px 0 5px;
   }
+
+  /* Media queries para móvil y tablet */
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 2rem;
+    }
+    #descripcion {
+      font-size: 1rem;
+    }
+    #word-container {
+      max-width: 95vw;
+      gap: 8px;
+    }
+    .letter-box {
+      width: 26px;
+      height: 42px;
+      font-size: 1.5rem;
+    }
+    button.letra {
+      width: 36px;
+      height: 36px;
+      font-size: 1.1rem;
+    }
+    #boton-reiniciar {
+      padding: 12px 25px;
+      font-size: 1rem;
+    }
+  }
 </style>
 </head>
 <body>
@@ -143,19 +173,15 @@
 
 <script>
   const equipos = [
-    // 200 equipos europeos - solo algunos por ejemplo (completa con los mejores que quieras)
     "REAL MADRID", "BARCELONA", "MANCHESTER UNITED", "BAYERN MUNICH", "JUVENTUS",
     "PARIS SAINT GERMAIN", "CHELSEA", "LIVERPOOL", "ARSENAL", "AC MILAN",
     "INTER MILAN", "DORTMUND", "ATLETICO MADRID", "ROMA", "NAPOLI",
     "SEVILLA", "VALENCIA", "BENFICA", "PORTO", "CSKA MOSCÚ",
     "GALATASARAY", "OLYMPIAKOS", "AJAX", "PSV", "SCHALKE 04",
-    // Puedes añadir más equipos europeos aquí hasta 200...
     "CELTA VIGO", "REAL SOCIEDAD", "BAYER LEVERKUSEN", "TOTTENHAM", "LEICESTER",
     "MONACO", "MARSELLA", "ZENIT", "RAPID VIENA", "ANDERLECHT",
     "FENERBAHCE", "LAZIO", "VILLARREAL", "ATHLETIC BILBAO", "SCHALKE",
     "WOLFSBURGO", "STUTTGART", "DYNAMO KIEV", "BRUJAS", "COPENHAGUE",
-    // ...continúa para completar los 200 europeos
-    // 50 equipos sudamericanos (ejemplos)
     "BOTAFOGO", "FLAMENGO", "CORINTHIANS", "SANTOS", "PALMEIRAS",
     "RIVER PLATE", "BOCA JUNIORS", "INDEPENDIENTE", "RACING CLUB", "SAN LORENZO",
     "FLUMINENSE", "GREMIO", "ATLETICO MINEIRO", "VASCO DA GAMA", "CRUZEIRO",
@@ -165,7 +191,6 @@
     "CHIVAS", "TOLUCA", "ATLAS", "TIJUANA", "LEON",
     "NACIONAL", "PEÑAROL", "OLIMPIA", "LIBERTAD", "CERRO PORTENO",
     "LANUS", "ARSENAL SARANDI", "COLON", "SAN MARTIN", "GIMNASIA",
-    // Puedes agregar más para completar 50 sudamericanos
   ];
 
   let palabra = "";
