@@ -3,763 +3,710 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>XFootballHub - Mundial Penaltis 2022</title>
+<title>Penaltis Mundial 2022 - XFootballHub</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap');
 
-  body {
-    margin: 0;
-    background: linear-gradient(135deg, #004d40, #1de9b6);
-    font-family: 'Montserrat', sans-serif;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    padding: 10px;
-  }
-  h1 {
-    margin: 20px 0 10px;
-    font-size: 2.8rem;
-    letter-spacing: 4px;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  }
-  #game-area {
-    position: relative;
-    width: 360px;
-    height: 480px;
-    background: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=360&q=80') no-repeat center center/cover;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-    margin-bottom: 15px;
-    user-select: none;
-  }
-  /* Portería 3x3 */
-  #porteria {
-    position: absolute;
-    bottom: 60px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 280px;
-    height: 140px;
-    background: #f0f0f0cc;
-    border: 5px solid #004d40;
-    border-radius: 12px;
+  * {
     box-sizing: border-box;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 2px;
   }
-  /* Zonas transparent but clickable */
-  .zona {
-    background: rgba(29, 233, 182, 0.3);
-    cursor: pointer;
-    border-radius: 6px;
-    transition: background-color 0.3s;
-  }
-  .zona:hover {
-    background-color: rgba(29, 233, 182, 0.6);
-  }
-  /* Balón */
-  #balon {
-    position: absolute;
-    width: 36px;
-    height: 36px;
-    background: url('https://upload.wikimedia.org/wikipedia/commons/e/e7/Soccer_ball_icon.svg') no-repeat center center / contain;
-    top: 380px;
-    left: 30px;
-    transition: left 0.5s ease, top 0.5s ease;
-    pointer-events: none;
-    z-index: 5;
-  }
-  /* Jugador y portero humanos con partes */
-  .personaje {
-    position: absolute;
-    width: 50px;
-    height: 110px;
+
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #00695c, #26a69a);
+    color: #f0f0f0;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    user-select: none;
-  }
-  /* Cabeza */
-  .cabeza {
-    width: 42px;
-    height: 42px;
-    background: var(--color-cuerpo);
-    border-radius: 50%;
-    border: 3px solid #222;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.5);
-  }
-  /* Cuerpo */
-  .cuerpo {
-    width: 32px;
-    height: 50px;
-    margin-top: 4px;
-    background: var(--color-cuerpo);
-    border-radius: 14px 14px 10px 10px;
-    border: 3px solid #222;
-    box-shadow: inset 0 5px 10px rgba(255,255,255,0.2);
-    position: relative;
-  }
-  /* Brazos */
-  .brazo-izq, .brazo-der {
-    position: absolute;
-    top: 6px;
-    width: 12px;
-    height: 38px;
-    background: var(--color-cuerpo);
-    border: 3px solid #222;
-    border-radius: 8px;
-  }
-  .brazo-izq {
-    left: -15px;
-    transform: rotate(15deg);
-    box-shadow: inset 0 3px 6px rgba(255,255,255,0.15);
-  }
-  .brazo-der {
-    right: -15px;
-    transform: rotate(-15deg);
-    box-shadow: inset 0 3px 6px rgba(255,255,255,0.15);
-  }
-  /* Piernas */
-  .piernas {
-    width: 44px;
-    height: 40px;
-    margin-top: 4px;
-    display: flex;
-    justify-content: space-between;
-  }
-  .pierna {
-    width: 16px;
-    height: 38px;
-    background: var(--color-piernas);
-    border: 3px solid #222;
-    border-radius: 8px;
-    box-shadow: inset 0 4px 10px rgba(0,0,0,0.3);
+    min-height: 100vh;
   }
 
-  /* Jugador usa variables CSS con color país */
-  #jugador {
-    --color-cuerpo: #4caf50;
-    --color-piernas: #2e7d32;
-    bottom: 20px;
-    left: 20px;
-    z-index: 10;
-  }
-  /* Portero neutro color azul */
-  #portero {
-    --color-cuerpo: #2196f3;
-    --color-piernas: #1565c0;
-    bottom: 200px;
-    left: calc(50% - 25px);
-    z-index: 10;
-    transition: transform 0.5s ease;
-  }
-
-  /* Texto info */
-  #info-partido {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    font-weight: 600;
+  header {
+    padding: 20px 15px;
     text-align: center;
-    min-height: 28px;
-  }
-  #resultado {
-    font-size: 1.4rem;
-    font-weight: 700;
-    text-align: center;
-    height: 32px;
-    margin-bottom: 15px;
-    min-height: 32px;
-  }
-  #pantalla-titulo {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1de9b6cc;
-    color: #004d40;
-    font-weight: 700;
-    font-size: 1.8rem;
-    padding: 10px 20px;
-    border-radius: 15px;
-    box-shadow: 0 0 15px #1de9b6bb;
-    display: none;
-    z-index: 20;
-  }
-  #tabla-grupo {
-    width: 100%;
-    max-width: 360px;
-    border-collapse: collapse;
-    margin-bottom: 15px;
-    user-select: none;
-  }
-  #tabla-grupo th, #tabla-grupo td {
-    border: 1px solid #1de9b6;
-    padding: 6px 8px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-  }
-  #tabla-grupo th {
     background: #004d40;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
   }
-  #tabla-grupo td {
-    background: #00796bdd;
+  header h1 {
+    margin: 0; font-size: 2.5rem;
+    letter-spacing: 3px;
   }
-  #next-partido-btn {
-    background: #1de9b6;
-    border: none;
-    padding: 10px 30px;
-    border-radius: 25px;
-    font-weight: 700;
+  header p {
+    margin: 5px 0 0;
+    font-weight: 600;
     font-size: 1.1rem;
-    color: #004d40;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    user-select: none;
-  }
-  #next-partido-btn:disabled {
-    background: #004d40aa;
-    cursor: not-allowed;
+    color: #a7ffebcc;
   }
 
-  /* Selector equipo inicial */
-  #selector-equipo {
-    margin-bottom: 20px;
-    max-width: 360px;
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 15px 30px;
+    max-width: 900px;
+    margin: 0 auto;
     width: 100%;
   }
-  #selector-equipo label {
-    font-weight: 700;
-    margin-right: 10px;
+
+  /* Equipo selección */
+  #team-selection {
+    background: rgba(255,255,255,0.12);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 25px;
+    overflow-y: auto;
+    max-height: 220px;
   }
-  #selector-equipo select {
+  #team-selection h2 {
+    text-align: center;
+    margin: 0 0 10px;
+    font-size: 1.8rem;
+  }
+  #teams-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .team-card {
+    cursor: pointer;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
     padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.3s ease;
+    width: 140px;
+  }
+  .team-card:hover, .team-card.selected {
+    background: #1de9b6;
+    color: #004d40;
+  }
+  .team-flag {
+    width: 30px; height: 20px;
+    border: 1px solid #004d40;
+    border-radius: 3px;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+  }
+  .team-name {
     font-weight: 600;
-    border-radius: 8px;
-    border: none;
     font-size: 1rem;
   }
 
-  /* Responsive móvil */
-  @media (max-width: 400px) {
-    #game-area {
-      width: 320px;
-      height: 430px;
-    }
-    #tabla-grupo {
+  /* Game container */
+  #game-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+  }
+
+  /* Stage text */
+  #stage-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  /* Match info */
+  #match-info {
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    min-height: 24px;
+  }
+
+  /* Field & game area */
+  #field {
+    position: relative;
+    width: 320px;
+    height: 440px;
+    background: linear-gradient(to bottom, #88cc44 0%, #529322 100%);
+    border-radius: 12px;
+    box-shadow: inset 0 0 20px #2a5c12;
+    user-select: none;
+    overflow: hidden;
+  }
+
+  /* Goal */
+  #goal {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    width: 260px;
+    height: 120px;
+    margin-left: -130px;
+    background: #eee;
+    border: 6px solid #444;
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    box-shadow:
+      inset 0 5px 10px #bbb,
+      0 0 20px rgba(0,0,0,0.2);
+  }
+
+  /* Goal divisions (9 zones) */
+  .goal-zone {
+    position: absolute;
+    border: 1.5px solid #9998;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  .goal-zone:hover:not(.disabled) {
+    background-color: rgba(29, 233, 182, 0.3);
+  }
+  /* 3 rows */
+  .row-1 { top: 6px; height: 38%; }
+  .row-2 { top: 44%; height: 38%; }
+  .row-3 { bottom: 6px; height: 38%; }
+  /* 3 cols */
+  .col-1 { left: 4%; width: 30%; }
+  .col-2 { left: 35%; width: 30%; }
+  .col-3 { right: 4%; width: 30%; }
+
+  /* Player & keeper */
+  #player, #keeper {
+    position: absolute;
+    width: 90px;
+    height: 140px;
+    bottom: 140px;
+    user-select: none;
+  }
+  #player {
+    left: 40px;
+    transition: left 0.35s ease, bottom 0.25s ease;
+  }
+  #keeper {
+    right: 40px;
+    transition: right 0.35s ease;
+  }
+
+  /* Simple human shape for player and keeper */
+  .human-body {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #004d40 0%, #00796b 100%);
+    border-radius: 50% / 60% 60% 40% 40%;
+    position: relative;
+    box-shadow: inset 0 0 15px #00291b;
+  }
+  .human-head {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 55px;
+    height: 55px;
+    background: #ffe0bd;
+    border-radius: 50%;
+    border: 2px solid #cc9966;
+    transform: translateX(-50%);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  }
+  /* Shirt colors by data */
+  #player[data-team="Qatar"] .human-body { background: linear-gradient(to bottom, #7a0b0b, #ad1f1f); }
+  #player[data-team="Ecuador"] .human-body { background: linear-gradient(to bottom, #ffd300, #fabf00); }
+  #player[data-team="Senegal"] .human-body { background: linear-gradient(to bottom, #00853f, #00622e); }
+  #player[data-team="Netherlands"] .human-body { background: linear-gradient(to bottom, #e4601f, #b84100); }
+  #player[data-team="England"] .human-body { background: linear-gradient(to bottom, #d6d6d6, #a0a0a0); }
+  #player[data-team="Iran"] .human-body { background: linear-gradient(to bottom, #d1272a, #9b1f22); }
+  #player[data-team="USA"] .human-body { background: linear-gradient(to bottom, #224a7c, #122c4a); }
+  #player[data-team="Wales"] .human-body { background: linear-gradient(to bottom, #cc0000, #990000); }
+  #player[data-team="Argentina"] .human-body { background: linear-gradient(to bottom, #74b0da, #3c84c9); }
+  #player[data-team="Saudi Arabia"] .human-body { background: linear-gradient(to bottom, #0d783c, #064c1f); }
+  #player[data-team="Mexico"] .human-body { background: linear-gradient(to bottom, #00843d, #005a23); }
+  #player[data-team="Poland"] .human-body { background: linear-gradient(to bottom, #d72a34, #9e1a20); }
+  #player[data-team="France"] .human-body { background: linear-gradient(to bottom, #233e8b, #192c66); }
+  #player[data-team="Australia"] .human-body { background: linear-gradient(to bottom, #004a28, #00371b); }
+  #player[data-team="Denmark"] .human-body { background: linear-gradient(to bottom, #c60c30, #8a0620); }
+  #player[data-team="Tunisia"] .human-body { background: linear-gradient(to bottom, #ce222a, #9a1a21); }
+  #player[data-team="Spain"] .human-body { background: linear-gradient(to bottom, #bf001f, #7a000f); }
+  #player[data-team="Costa Rica"] .human-body { background: linear-gradient(to bottom, #be1622, #840e14); }
+  #player[data-team="Germany"] .human-body { background: linear-gradient(to bottom, #000000, #222222); }
+  #player[data-team="Japan"] .human-body { background: linear-gradient(to bottom, #c81a2f, #920016); }
+  #player[data-team="Belgium"] .human-body { background: linear-gradient(to bottom, #b01e1e, #770000); }
+  #player[data-team="Canada"] .human-body { background: linear-gradient(to bottom, #d93b3a, #a42828); }
+  #player[data-team="Morocco"] .human-body { background: linear-gradient(to bottom, #a30b0b, #660606); }
+  #player[data-team="Croatia"] .human-body { background: linear-gradient(to bottom, #cc2a2a, #870909); }
+  #player[data-team="Brazil"] .human-body { background: linear-gradient(to bottom, #009b3a, #005927); }
+  #player[data-team="Serbia"] .human-body { background: linear-gradient(to bottom, #cb2229, #8b0d13); }
+  #player[data-team="Switzerland"] .human-body { background: linear-gradient(to bottom, #bf0000, #7a0000); }
+  #player[data-team="Cameroon"] .human-body { background: linear-gradient(to bottom, #007a33, #004d20); }
+  #player[data-team="Portugal"] .human-body { background: linear-gradient(to bottom, #a41e1e, #6d0d0d); }
+  #player[data-team="Ghana"] .human-body { background: linear-gradient(to bottom, #d7130b, #930900); }
+  #player[data-team="Uruguay"] .human-body { background: linear-gradient(to bottom, #4a83c7, #0f49b5); }
+  #player[data-team="South Korea"] .human-body { background: linear-gradient(to bottom, #bb152a, #7d0c1a); }
+
+  /* Keeper: blue shirt */
+  #keeper .human-body {
+    background: linear-gradient(to bottom, #0d47a1, #1565c0);
+  }
+  #keeper .human-head {
+    background: #f2d8b3;
+    border-color: #a57f5b;
+  }
+
+  /* Ball */
+  #ball {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    bottom: 195px;
+    left: 140px;
+    background: radial-gradient(circle at center, #fff 60%, #ccc 100%);
+    border-radius: 50%;
+    box-shadow:
+      inset 0 0 6px #888,
+      0 2px 6px rgba(0,0,0,0.3);
+    border: 2px solid #555;
+    transition: left 0.35s ease, bottom 0.35s ease;
+    pointer-events: none;
+  }
+
+  /* Animation classes */
+  .shooting {
+    animation: shoot-move 0.6s forwards;
+  }
+  .goal-celebrate {
+    animation: goal-flash 0.7s alternate 4;
+  }
+  .keeper-dive-left {
+    animation: keeper-dive-left 0.5s forwards;
+  }
+  .keeper-dive-right {
+    animation: keeper-dive-right 0.5s forwards;
+  }
+
+  @keyframes shoot-move {
+    0% { bottom: 195px; }
+    100% { bottom: 85px; }
+  }
+  @keyframes goal-flash {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(1.8); }
+  }
+  @keyframes keeper-dive-left {
+    0% { right: 40px; }
+    100% { right: 140px; transform: rotate(-25deg); }
+  }
+  @keyframes keeper-dive-right {
+    0% { right: 40px; }
+    100% { right: 140px; transform: rotate(25deg); }
+  }
+
+  /* Controls */
+  #controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+  }
+  button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    background: #1de9b6;
+    color: #004d40;
+    box-shadow: 0 3px 8px #004d40aa;
+    transition: background-color 0.3s ease;
+  }
+  button:hover:not(:disabled) {
+    background: #00bfa5;
+  }
+  button:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+  }
+
+  /* Info panel */
+  #info-panel {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 600;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    #field {
+      width: 100vw;
       max-width: 320px;
+      height: 440px;
     }
-    .personaje {
-      width: 44px;
-      height: 95px;
+    #player, #keeper {
+      width: 70px;
+      height: 110px;
     }
-    .cabeza {
-      width: 36px;
-      height: 36px;
-    }
-    .cuerpo {
-      width: 28px;
-      height: 44px;
-    }
-    .brazo-izq, .brazo-der {
-      width: 10px;
-      height: 34px;
-    }
-    .pierna {
-      width: 14px;
-      height: 34px;
+    #ball {
+      width: 32px;
+      height: 32px;
+      bottom: 160px;
+      left: 115px;
     }
   }
+
 </style>
 </head>
 <body>
 
-<h1>Mundial Penaltis 2022</h1>
+<header>
+  <h1>Penaltis Mundial 2022</h1>
+  <p>Selecciona tu equipo y lucha por la gloria</p>
+</header>
 
-<div id="selector-equipo">
-  <label for="equipo-select">Elige tu equipo:</label>
-  <select id="equipo-select" aria-label="Selecciona equipo para jugar">
-    <!-- Opciones cargadas dinámicamente -->
-  </select>
-  <button id="start-btn">Comenzar torneo</button>
-</div>
+<main>
 
-<div id="info-partido" aria-live="polite"></div>
-<div id="resultado" aria-live="assertive"></div>
+  <section id="team-selection">
+    <h2>Elige tu equipo</h2>
+    <div id="teams-list" aria-label="Lista de equipos participantes" role="list"></div>
+  </section>
 
-<div id="game-area" aria-label="Área del juego de penaltis">
-  <div id="portero" class="personaje" role="img" aria-label="Portero humano">
-    <div class="cabeza"></div>
-    <div class="cuerpo">
-      <div class="brazo-izq"></div>
-      <div class="brazo-der"></div>
+  <section id="game-container" aria-live="polite">
+
+    <div id="stage-title"></div>
+    <div id="match-info"></div>
+
+    <div id="field" aria-label="Campo de penaltis">
+
+      <div id="goal" aria-label="Portería de penalti" role="region" aria-live="off">
+        <!-- 9 zones -->
+        <div class="goal-zone row-1 col-1" data-zone="0" aria-label="Zona superior izquierda"></div>
+        <div class="goal-zone row-1 col-2" data-zone="1" aria-label="Zona superior centro"></div>
+        <div class="goal-zone row-1 col-3" data-zone="2" aria-label="Zona superior derecha"></div>
+        <div class="goal-zone row-2 col-1" data-zone="3" aria-label="Zona media izquierda"></div>
+        <div class="goal-zone row-2 col-2" data-zone="4" aria-label="Zona media centro"></div>
+        <div class="goal-zone row-2 col-3" data-zone="5" aria-label="Zona media derecha"></div>
+        <div class="goal-zone row-3 col-1" data-zone="6" aria-label="Zona inferior izquierda"></div>
+        <div class="goal-zone row-3 col-2" data-zone="7" aria-label="Zona inferior centro"></div>
+        <div class="goal-zone row-3 col-3" data-zone="8" aria-label="Zona inferior derecha"></div>
+      </div>
+
+      <div id="player" aria-label="Jugador tirador" role="img" aria-live="off">
+        <div class="human-body"></div>
+        <div class="human-head"></div>
+      </div>
+
+      <div id="keeper" aria-label="Portero" role="img" aria-live="off">
+        <div class="human-body"></div>
+        <div class="human-head"></div>
+      </div>
+
+      <div id="ball" aria-label="Balón de fútbol"></div>
+
     </div>
-    <div class="piernas">
-      <div class="pierna"></div>
-      <div class="pierna"></div>
+
+    <div id="controls" role="region" aria-label="Controles del juego">
+      <button id="start-btn" disabled>Comenzar partido</button>
+      <button id="next-shot-btn" disabled>Disparar penalti</button>
     </div>
-  </div>
 
-  <div id="jugador" class="personaje" role="img" aria-label="Delantero humano">
-    <div class="cabeza"></div>
-    <div class="cuerpo">
-      <div class="brazo-izq"></div>
-      <div class="brazo-der"></div>
-    </div>
-    <div class="piernas">
-      <div class="pierna"></div>
-      <div class="pierna"></div>
-    </div>
-  </div>
+    <div id="info-panel" aria-live="assertive"></div>
 
-  <div id="balon" aria-hidden="true"></div>
+  </section>
 
-  <div id="porteria" role="grid" aria-label="Portería dividida en nueve zonas">
-    <!-- 9 zonas para disparo -->
-  </div>
-</div>
-
-<table id="tabla-grupo" aria-label="Tabla de resultados de grupo" hidden>
-  <thead>
-    <tr>
-      <th>Equipo</th>
-      <th>PJ</th>
-      <th>PG</th>
-      <th>PE</th>
-      <th>PP</th>
-      <th>GF</th>
-      <th>GC</th>
-      <th>DG</th>
-      <th>Puntos</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
-<button id="next-partido-btn" disabled>Partido siguiente</button>
-
-<div id="pantalla-titulo" role="alert"></div>
+</main>
 
 <script>
-  // Equipos con colores y banderas
-  const equipos = [
-    { nombre: "Qatar", codigo: "qat", color: "#7A003C", bandera: "https://flagcdn.com/w320/qa.png" },
-    { nombre: "Ecuador", codigo: "ecu", color: "#FFDD00", bandera: "https://flagcdn.com/w320/ec.png" },
-    { nombre: "Senegal", codigo: "sen", color: "#00853F", bandera: "https://flagcdn.com/w320/sn.png" },
-    { nombre: "Países Bajos", codigo: "nld", color: "#FF6600", bandera: "https://flagcdn.com/w320/nl.png" },
+// DATA EQUIPOS DEL MUNDIAL 2022
+const teamsData = [
+  { name: "Qatar", flag: "https://flagcdn.com/w40/qa.png", strength: 1 },
+  { name: "Ecuador", flag: "https://flagcdn.com/w40/ec.png", strength: 3 },
+  { name: "Senegal", flag: "https://flagcdn.com/w40/sn.png", strength: 4 },
+  { name: "Netherlands", flag: "https://flagcdn.com/w40/nl.png", strength: 8 },
+  { name: "England", flag: "https://flagcdn.com/w40/gb.png", strength: 8 },
+  { name: "Iran", flag: "https://flagcdn.com/w40/ir.png", strength: 3 },
+  { name: "USA", flag: "https://flagcdn.com/w40/us.png", strength: 5 },
+  { name: "Wales", flag: "https://flagcdn.com/w40/gb-wls.png", strength: 2 },
 
-    { nombre: "Inglaterra", codigo: "eng", color: "#CF142B", bandera: "https://flagcdn.com/w320/gb-eng.png" },
-    { nombre: "Irán", codigo: "irn", color: "#239F40", bandera: "https://flagcdn.com/w320/ir.png" },
-    { nombre: "Estados Unidos", codigo: "usa", color: "#B22234", bandera: "https://flagcdn.com/w320/us.png" },
-    { nombre: "Gales", codigo: "wls", color: "#D72828", bandera: "https://flagcdn.com/w320/gb-wls.png" },
+  { name: "Argentina", flag: "https://flagcdn.com/w40/ar.png", strength: 7 },
+  { name: "Saudi Arabia", flag: "https://flagcdn.com/w40/sa.png", strength: 3 },
+  { name: "Mexico", flag: "https://flagcdn.com/w40/mx.png", strength: 5 },
+  { name: "Poland", flag: "https://flagcdn.com/w40/pl.png", strength: 6 },
+  { name: "France", flag: "https://flagcdn.com/w40/fr.png", strength: 9 },
+  { name: "Australia", flag: "https://flagcdn.com/w40/au.png", strength: 3 },
+  { name: "Denmark", flag: "https://flagcdn.com/w40/dk.png", strength: 7 },
+  { name: "Tunisia", flag: "https://flagcdn.com/w40/tn.png", strength: 2 },
 
-    { nombre: "Argentina", codigo: "arg", color: "#74ACDF", bandera: "https://flagcdn.com/w320/ar.png" },
-    { nombre: "Arabia Saudí", codigo: "sau", color: "#006C35", bandera: "https://flagcdn.com/w320/sa.png" },
-    { nombre: "México", codigo: "mex", color: "#006847", bandera: "https://flagcdn.com/w320/mx.png" },
-    { nombre: "Polonia", codigo: "pol", color: "#DC143C", bandera: "https://flagcdn.com/w320/pl.png" },
+  { name: "Spain", flag: "https://flagcdn.com/w40/es.png", strength: 8 },
+  { name: "Costa Rica", flag: "https://flagcdn.com/w40/cr.png", strength: 1 },
+  { name: "Germany", flag: "https://flagcdn.com/w40/de.png", strength: 8 },
+  { name: "Japan", flag: "https://flagcdn.com/w40/jp.png", strength: 5 },
+  { name: "Belgium", flag: "https://flagcdn.com/w40/be.png", strength: 8 },
+  { name: "Canada", flag: "https://flagcdn.com/w40/ca.png", strength: 2 },
+  { name: "Morocco", flag: "https://flagcdn.com/w40/ma.png", strength: 4 },
+  { name: "Croatia", flag: "https://flagcdn.com/w40/hr.png", strength: 7 },
 
-    { nombre: "Francia", codigo: "fra", color: "#0055A4", bandera: "https://flagcdn.com/w320/fr.png" },
-    { nombre: "Australia", codigo: "aus", color: "#FFD700", bandera: "https://flagcdn.com/w320/au.png" },
-    { nombre: "Dinamarca", codigo: "dnk", color: "#C60C30", bandera: "https://flagcdn.com/w320/dk.png" },
-    { nombre: "Túnez", codigo: "tun", color: "#E70013", bandera: "https://flagcdn.com/w320/tn.png" },
+  { name: "Brazil", flag: "https://flagcdn.com/w40/br.png", strength: 9 },
+  { name: "Serbia", flag: "https://flagcdn.com/w40/rs.png", strength: 4 },
+  { name: "Switzerland", flag: "https://flagcdn.com/w40/ch.png", strength: 6 },
+  { name: "Cameroon", flag: "https://flagcdn.com/w40/cm.png", strength: 3 },
+  { name: "Portugal", flag: "https://flagcdn.com/w40/pt.png", strength: 8 },
+  { name: "Ghana", flag: "https://flagcdn.com/w40/gh.png", strength: 3 },
+  { name: "Uruguay", flag: "https://flagcdn.com/w40/uy.png", strength: 6 },
+  { name: "South Korea", flag: "https://flagcdn.com/w40/kr.png", strength: 4 },
+];
 
-    { nombre: "España", codigo: "esp", color: "#C60B1E", bandera: "https://flagcdn.com/w320/es.png" },
-    { nombre: "Costa Rica", codigo: "cri", color: "#D21034", bandera: "https://flagcdn.com/w320/cr.png" },
-    { nombre: "Alemania", codigo: "deu", color: "#000000", bandera: "https://flagcdn.com/w320/de.png" },
-    { nombre: "Japón", codigo: "jpn", color: "#BC002D", bandera: "https://flagcdn.com/w320/jp.png" },
+// GRUPOS OFICIALES MUNDIAL 2022
+const groups = {
+  A: ["Qatar", "Ecuador", "Senegal", "Netherlands"],
+  B: ["England", "Iran", "USA", "Wales"],
+  C: ["Argentina", "Saudi Arabia", "Mexico", "Poland"],
+  D: ["France", "Australia", "Denmark", "Tunisia"],
+  E: ["Spain", "Costa Rica", "Germany", "Japan"],
+  F: ["Belgium", "Canada", "Morocco", "Croatia"],
+  G: ["Brazil", "Serbia", "Switzerland", "Cameroon"],
+  H: ["Portugal", "Ghana", "Uruguay", "South Korea"],
+};
 
-    { nombre: "Bélgica", codigo: "bel", color: "#FF0000", bandera: "https://flagcdn.com/w320/be.png" },
-    { nombre: "Canadá", codigo: "can", color: "#FF0000", bandera: "https://flagcdn.com/w320/ca.png" },
-    { nombre: "Marruecos", codigo: "mar", color: "#006233", bandera: "https://flagcdn.com/w320/ma.png" },
-    { nombre: "Croacia", codigo: "hrv", color: "#FF0000", bandera: "https://flagcdn.com/w320/hr.png" },
+// UTILIDADES
+function getTeamByName(name) {
+  return teamsData.find(t => t.name === name);
+}
 
-    { nombre: "Brasil", codigo: "bra", color: "#009B3A", bandera: "https://flagcdn.com/w320/br.png" },
-    { nombre: "Serbia", codigo: "srb", color: "#D22B2B", bandera: "https://flagcdn.com/w320/rs.png" },
-    { nombre: "Suiza", codigo: "che", color: "#FF0000", bandera: "https://flagcdn.com/w320/ch.png" },
-    { nombre: "Camerún", codigo: "cmr", color: "#007A33", bandera: "https://flagcdn.com/w320/cm.png" },
+function shuffleArray(arr) {
+  // Durstenfeld shuffle
+  for(let i=arr.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
-    { nombre: "Portugal", codigo: "prt", color: "#FF0000", bandera: "https://flagcdn.com/w320/pt.png" },
-    { nombre: "Ghana", codigo: "gha", color: "#FF0000", bandera: "https://flagcdn.com/w320/gh.png" },
-    { nombre: "Uruguay", codigo: "ury", color: "#66CCFF", bandera: "https://flagcdn.com/w320/uy.png" },
-    { nombre: "Corea del Sur", codigo: "kor", color: "#CD2E3A", bandera: "https://flagcdn.com/w320/kr.png" }
-  ];
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
 
-  // Grupos reales 2022
-  const grupos2022 = {
-    "A": ["Qatar", "Ecuador", "Senegal", "Países Bajos"],
-    "B": ["Inglaterra", "Irán", "Estados Unidos", "Gales"],
-    "C": ["Argentina", "Arabia Saudí", "México", "Polonia"],
-    "D": ["Francia", "Australia", "Dinamarca", "Túnez"],
-    "E": ["España", "Costa Rica", "Alemania", "Japón"],
-    "F": ["Bélgica", "Canadá", "Marruecos", "Croacia"],
-    "G": ["Brasil", "Serbia", "Suiza", "Camerún"],
-    "H": ["Portugal", "Ghana", "Uruguay", "Corea del Sur"]
-  };
+// VARIABLES DE JUEGO
+let playerTeam = null;  // equipo jugador
+let currentStage = 'group'; // group, octavos, cuartos, semis, final
+let currentMatchIndex = 0;
+let tournamentData = null;
+let userScore = 0;
+let compScore = 0;
+let shotsTaken = 0;
+const totalShots = 5;
+let currentMatch = null;
+let selectedZone = null;
+let isShooting = false;
 
-  // Variables globales
-  let grupoSeleccionado = null;
-  let equipoUsuario = null;
-  let faseActual = "grupos"; // grupos, octavos, cuartos, semifinales, final, terminado
-  let grupos = {};
-  let eliminatorias = {};
-  let partidoActual = 0;
-  let partidosFase = [];
-  let puntosPorPartido = 3; // victoria
-  let tirosPorPartido = 5;
+// ELEMENTOS DOM
+const teamsListEl = document.getElementById('teams-list');
+const teamSelectionEl = document.getElementById('team-selection');
+const gameContainerEl = document.getElementById('game-container');
+const stageTitleEl = document.getElementById('stage-title');
+const matchInfoEl = document.getElementById('match-info');
+const playerEl = document.getElementById('player');
+const keeperEl = document.getElementById('keeper');
+const ballEl = document.getElementById('ball');
+const goalZones = Array.from(document.querySelectorAll('.goal-zone'));
+const startBtn = document.getElementById('start-btn');
+const nextShotBtn = document.getElementById('next-shot-btn');
+const infoPanel = document.getElementById('info-panel');
 
-  const equipoSelect = document.getElementById("equipo-select");
-  const startBtn = document.getElementById("start-btn");
-  const infoPartido = document.getElementById("info-partido");
-  const resultadoEl = document.getElementById("resultado");
-  const porteriaEl = document.getElementById("porteria");
-  const balonEl = document.getElementById("balon");
-  const jugadorEl = document.getElementById("jugador");
-  const porteroEl = document.getElementById("portero");
-  const tablaGrupoEl = document.getElementById("tabla-grupo");
-  const tablaCuerpo = tablaGrupoEl.querySelector("tbody");
-  const nextPartidoBtn = document.getElementById("next-partido-btn");
-  const pantallaTituloEl = document.getElementById("pantalla-titulo");
 
-  // Carga equipos en el selector
-  function cargarSelectorEquipos() {
-    equipoSelect.innerHTML = `<option value="">-- Selecciona equipo --</option>`;
-    equipos.forEach(e => {
-      equipoSelect.innerHTML += `<option value="${e.nombre}">${e.nombre}</option>`;
+// Sonidos base
+const audioShot = new Audio('https://actions.google.com/sounds/v1/sports/whistle.ogg');
+const audioGoal = new Audio('https://actions.google.com/sounds/v1/sports/soccer_goal.ogg');
+const audioSave = new Audio('https://actions.google.com/sounds/v1/sports/soccer_save.ogg');
+
+// Mostrar lista de equipos para selección
+function renderTeams() {
+  teamsListEl.innerHTML = '';
+  teamsData.forEach(team => {
+    const div = document.createElement('div');
+    div.classList.add('team-card');
+    div.setAttribute('role', 'listitem');
+    div.setAttribute('tabindex', '0');
+    div.setAttribute('aria-label', `Equipo ${team.name}`);
+    div.innerHTML = `<img src="${team.flag}" alt="Bandera de ${team.name}"><span>${team.name}</span>`;
+    div.addEventListener('click', () => selectTeam(team));
+    div.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectTeam(team);
+      }
     });
-  }
+    teamsListEl.appendChild(div);
+  });
+}
 
-  // Obtener equipo por nombre
-  function obtenerEquipo(nombre) {
-    return equipos.find(e => e.nombre === nombre);
-  }
+// Seleccionar equipo del jugador
+function selectTeam(team) {
+  playerTeam = team;
+  teamSelectionEl.style.display = 'none';
+  gameContainerEl.style.display = 'block';
+  startBtn.disabled = false;
+  infoPanel.textContent = `Has seleccionado: ${team.name}. ¡Buena suerte!`;
+}
 
-  // Crear zonas 3x3 en portería
-  function crearZonas() {
-    porteriaEl.innerHTML = "";
-    for(let i=0; i<9; i++) {
-      const div = document.createElement("div");
-      div.classList.add("zona");
-      div.setAttribute("data-index", i);
-      div.setAttribute("role", "button");
-      div.setAttribute("tabindex", "0");
-      porteriaEl.appendChild(div);
-    }
-  }
+// Crear fixture con partidos para la simulación
+function createTournamentFixture() {
+  // Usaremos solo fase de grupos para simplicidad,
+  // luego octavos, cuartos, semis y final con datos simplificados
+  // Estructura: {stage, teams: [team1, team2], userTeamSide: 'user'|'comp'}
+  const fixtures = [];
 
-  // Inicializar grupo con datos iniciales
-  function inicializarGrupos() {
-    grupos = {};
-    for(const letra in grupos2022) {
-      grupos[letra] = grupos2022[letra].map(nombre => ({
-        nombre,
-        ...obtenerEquipo(nombre),
-        pj: 0, pg:0, pe:0, pp:0, gf:0, gc:0, dg:0, puntos:0
-      }));
-    }
-  }
-
-  // Mostrar tabla grupo para el equipo usuario
-  function mostrarTablaGrupo() {
-    tablaGrupoEl.hidden = false;
-    tablaCuerpo.innerHTML = "";
-    // Mostrar sólo el grupo del equipo usuario para simplicidad
-    if(!equipoUsuario) return;
-    let grupo = null;
-    for(const letra in grupos) {
-      if(grupos[letra].some(e => e.nombre === equipoUsuario.nombre)) {
-        grupo = grupos[letra];
-        break;
+  // Fase grupos (solo partidos que involucran equipo jugador)
+  for (const groupKey in groups) {
+    const groupTeams = groups[groupKey];
+    if (groupTeams.includes(playerTeam.name)) {
+      for (let i = 0; i < groupTeams.length; i++) {
+        for (let j = i + 1; j < groupTeams.length; j++) {
+          fixtures.push({
+            stage: 'group',
+            teams: [getTeamByName(groupTeams[i]), getTeamByName(groupTeams[j])],
+          });
+        }
       }
     }
-    grupo.forEach(e => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${e.nombre}</td>
-        <td>${e.pj}</td>
-        <td>${e.pg}</td>
-        <td>${e.pe}</td>
-        <td>${e.pp}</td>
-        <td>${e.gf}</td>
-        <td>${e.gc}</td>
-        <td>${e.dg}</td>
-        <td>${e.puntos}</td>
-      `;
-      tr.style.color = e.color;
-      tablaCuerpo.appendChild(tr);
-    });
   }
 
-  // Simula resultado de penalti (gol o parada)
-  // dificultad: 1-3, mayor es más difícil parar
-  function tirarPenalti(zonaElegida, dificultad){
-    // Portero elige zona aleatoria, con probabilidad de acertar mayor en dificultad alta
-    const zonasPortero = [0,1,2,3,4,5,6,7,8];
-    let zonaPortero;
-    if(dificultad === 1) zonaPortero = zonasPortero[Math.floor(Math.random()*zonasPortero.length)];
-    else if(dificultad === 2) zonaPortero = zonasPortero[Math.floor(Math.random()*zonasPortero.length)];
-    else zonaPortero = zonasPortero[Math.floor(Math.random()*zonasPortero.length)];
+  // Para simplicidad, creamos octavos, cuartos, semis y final con random para rivales
+  // Real logic would be more complex but this suffices for demo
+  // Rondas knockout con 8 equipos random seleccionados (mock)
+  const knockoutStages = ['octavos', 'cuartos', 'semis', 'final'];
+  let knockoutTeams = teamsData.slice(); // copia
 
-    // Ajustar probabilidad: Si portero acierta zona, paro 60% chance, si no, gol 90%
-    let gol;
-    if(zonaElegida === zonaPortero){
-      gol = Math.random() > 0.6 ? true : false; // 40% gol
-    } else {
-      gol = Math.random() > 0.1 ? true : false; // 90% gol
-    }
-    return { gol, zonaPortero };
-  }
-
-  // Animación balon hacia zona
-  function moverBalonHaciaZona(index) {
-    // Zonas 3x3 tienen posiciones relativas
-    // Vamos a posicionar balon en el centro de la zona
-    const zona = porteriaEl.querySelector(`.zona[data-index="${index}"]`);
-    if(!zona) return;
-
-    const rectPorteria = porteriaEl.getBoundingClientRect();
-    const rectZona = zona.getBoundingClientRect();
-
-    // Calcular posición relativa dentro del game area
-    const gameAreaRect = document.getElementById("game-area").getBoundingClientRect();
-
-    // Posición balon centrado en zona
-    const balonX = rectZona.left - gameAreaRect.left + rectZona.width/2 - balonEl.offsetWidth/2;
-    const balonY = rectZona.top - gameAreaRect.top + rectZona.height/2 - balonEl.offsetHeight/2;
-
-    balonEl.style.left = balonX + "px";
-    balonEl.style.top = balonY + "px";
-  }
-
-  // Animar portero a zona de parada
-  function moverPorteroAZona(index) {
-    // Las zonas 3x3 están organizadas así:
-    // 0 1 2
-    // 3 4 5
-    // 6 7 8
-    // Portero se moverá horizontal y verticalmente un poco según zona elegida
-
-    const baseX = (window.innerWidth > 400) ? 180 : 160;
-    const baseY = 280;
-    const gridCol = index % 3;
-    const gridRow = Math.floor(index / 3);
-
-    const offsetX = (gridCol - 1) * 60; // -60, 0, +60
-    const offsetY = (gridRow - 1) * 25; // -25,0,+25
-
-    porteroEl.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-  }
-
-  // Reset posiciones para siguiente tiro
-  function resetPosiciones() {
-    balonEl.style.left = "30px";
-    balonEl.style.top = "380px";
-    porteroEl.style.transform = "translate(0,0)";
-  }
-
-  // Actualizar color jugador según equipo
-  function actualizarColorJugador() {
-    if(!equipoUsuario) return;
-    jugadorEl.style.setProperty("--color-cuerpo", equipoUsuario.color);
-    // Piernas un poco más oscuro
-    let c = equipoUsuario.color;
-    // simplificar a negro para contraste si negro
-    if(c.toLowerCase() === "#000000") jugadorEl.style.setProperty("--color-piernas", "#222");
-    else jugadorEl.style.setProperty("--color-piernas", shadeColor(c, -30));
-  }
-
-  // Función para oscurecer color (para piernas)
-  function shadeColor(color, percent) {
-    let f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent;
-    let R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
-    return "#" + (0x1000000 + (Math.round((t - R) * p / 100) + R)*0x10000 + (Math.round((t - G) * p / 100) + G)*0x100 + (Math.round((t - B) * p / 100) + B)).toString(16).slice(1);
-  }
-
-  // Inicializar juego y eventos
-  function inicializarJuego() {
-    crearZonas();
-    inicializarGrupos();
-    mostrarTablaGrupo();
-    resetPosiciones();
-    actualizarColorJugador();
-
-    // Eventos zona click para tirar
-    porteriaEl.querySelectorAll(".zona").forEach(zona => {
-      zona.onclick = () => {
-        if(faseActual !== "grupos" && faseActual !== "eliminatorias") return;
-        if(partidosFase[partidoActual].turno === "penalti") {
-          tirarAPorteria(parseInt(zona.dataset.index));
-        }
-      };
-      zona.onkeydown = e => {
-        if((e.key === "Enter" || e.key === " ") && faseActual !== "terminado") {
-          zona.click();
-          e.preventDefault();
-        }
-      };
-    });
-
-    nextPartidoBtn.onclick = () => {
-      siguientePartido();
-    };
-  }
-
-  // Tirar al penalti
-  function tirarAPorteria(zonaElegida) {
-    nextPartidoBtn.disabled = true;
-    infoPartido.textContent = `¡Disparando a zona ${zonaElegida + 1}!`;
-
-    moverBalonHaciaZona(zonaElegida);
-
-    // Simulación corto delay
-    setTimeout(() => {
-      const dificultad = 2;
-      const resultado = tirarPenalti(zonaElegida, dificultad);
-      moverPorteroAZona(resultado.zonaPortero);
-
-      if(resultado.gol) {
-        infoPartido.textContent = "¡Gol!";
-        resultadoEl.textContent = "⚽️";
-        actualizarMarcador(true);
-      } else {
-        infoPartido.textContent = "¡Parada del portero!";
-        resultadoEl.textContent = "🧤";
-        actualizarMarcador(false);
+  knockoutStages.forEach(stage => {
+    shuffleArray(knockoutTeams);
+    for (let i = 0; i < knockoutTeams.length; i += 2) {
+      if (i + 1 < knockoutTeams.length) {
+        fixtures.push({
+          stage,
+          teams: [knockoutTeams[i], knockoutTeams[i+1]],
+        });
       }
-
-      // Tras un segundo permitir siguiente tiro o fase
-      setTimeout(() => {
-        nextPartidoBtn.disabled = false;
-        partidoActual++;
-        if(partidoActual >= partidosFase.length) {
-          terminarFase();
-        } else {
-          infoPartido.textContent = `Tiro ${partidoActual+1} de ${partidosFase.length}`;
-          resetPosiciones();
-        }
-      }, 1000);
-    }, 700);
-  }
-
-  // Variables marcador
-  let golesUsuario = 0;
-  let golesRival = 0;
-
-  // Actualiza marcador según resultado
-  function actualizarMarcador(gol) {
-    if(gol) golesUsuario++;
-    else golesRival++;
-  }
-
-  // Siguiente partido / tiro
-  function siguientePartido() {
-    if(faseActual === "terminado") {
-      alert("El torneo terminó. Recarga para jugar otra vez.");
-      return;
     }
-    if(partidoActual >= partidosFase.length) {
-      terminarFase();
-      return;
-    }
-    infoPartido.textContent = `Tiro ${partidoActual+1} de ${partidosFase.length}`;
-    resultadoEl.textContent = "";
-    nextPartidoBtn.disabled = true;
+    // Reduce teams for next stage
+    knockoutTeams = knockoutTeams.slice(0, knockoutTeams.length / 2);
+  });
+
+  return fixtures;
+}
+
+// Iniciar partido
+function startMatch() {
+  shotsTaken = 0;
+  userScore = 0;
+  compScore = 0;
+  currentMatch = tournamentData[currentMatchIndex];
+  stageTitleEl.textContent = `Etapa: ${currentMatch.stage.toUpperCase()}`;
+  matchInfoEl.textContent = `${currentMatch.teams[0].name} vs ${currentMatch.teams[1].name}`;
+  startBtn.disabled = true;
+  nextShotBtn.disabled = false;
+  infoPanel.textContent = '¡Tira el penalti!';
+  resetPositions();
+}
+
+// Reiniciar posiciones y estados visuales
+function resetPositions() {
+  selectedZone = null;
+  isShooting = false;
+  ballEl.style.left = '140px';
+  ballEl.style.bottom = '195px';
+  ballEl.className = '';
+  keeperEl.style.right = '40px';
+  keeperEl.style.transform = 'rotate(0deg)';
+  playerEl.style.left = '80px';
+  goalZones.forEach(zone => zone.classList.remove('selected'));
+}
+
+// Seleccionar zona del gol para disparar
+goalZones.forEach(zone => {
+  zone.addEventListener('click', () => {
+    if (isShooting || nextShotBtn.disabled) return;
+    goalZones.forEach(z => z.classList.remove('selected'));
+    zone.classList.add('selected');
+    selectedZone = parseInt(zone.dataset.zone);
+  });
+});
+
+// Simular disparo y resultado
+async function shootPenalty() {
+  if (isShooting || selectedZone === null) {
+    infoPanel.textContent = 'Selecciona una zona para tirar.';
+    return;
+  }
+  isShooting = true;
+  nextShotBtn.disabled = true;
+
+  audioShot.play();
+
+  // Movimiento balón y jugador
+  ballEl.classList.add('shooting');
+  playerEl.style.left = '120px';
+
+  // Guardameta elige lado para lanzarse aleatoriamente (0-8)
+  const keeperDive = Math.floor(Math.random() * 9);
+
+  // Esperar animación
+  await sleep(600);
+
+  // Evaluar resultado
+  let result = '';
+  if (keeperDive === selectedZone) {
+    // Save
+    audioSave.play();
+    result = 'Parada del portero!';
+    keeperEl.classList.add(selectedZone < 4 ? 'keeper-dive-left' : 'keeper-dive-right');
+  } else {
+    // Goal
+    audioGoal.play();
+    result = '¡Gol!';
+    ballEl.classList.add('goal-celebrate');
+    userScore++;
   }
 
-  // Terminar fase, mostrar resultado, avanzar
-  function terminarFase() {
-    // Ejemplo simple: si gana usuario, pasa siguiente ronda
-    if(golesUsuario > golesRival) {
-      infoPartido.textContent = `¡${equipoUsuario.nombre} pasa a la siguiente ronda! (${golesUsuario} - ${golesRival})`;
-      pantallaTitulo(`¡${equipoUsuario.nombre} avanza!`);
-      faseActual = "eliminatorias";
-      prepararEliminatorias();
-    } else if(golesUsuario < golesRival) {
-      infoPartido.textContent = `¡${equipoUsuario.nombre} queda eliminado! (${golesUsuario} - ${golesRival})`;
-      pantallaTitulo(`¡Fin del torneo!`);
-      faseActual = "terminado";
-      nextPartidoBtn.disabled = true;
+  shotsTaken++;
+  infoPanel.textContent = `${result} Marcador: ${userScore} - ${compScore}`;
+
+  await sleep(1000);
+
+  // Reset posiciones
+  resetPositions();
+
+  if (shotsTaken >= totalShots) {
+    // Fin partido
+    nextShotBtn.disabled = true;
+    let finalResult = '';
+    if (userScore > compScore) {
+      finalResult = '¡Has ganado el partido!';
+    } else if (userScore < compScore) {
+      finalResult = 'Has perdido el partido.';
     } else {
-      infoPartido.textContent = `Empate (${golesUsuario} - ${golesRival}), ¡se repite!`;
-      pantallaTitulo(`Empate, tira otra vez`);
-      partidoActual = 0;
-      golesUsuario = 0;
-      golesRival = 0;
-      resetPosiciones();
-      nextPartidoBtn.disabled = true;
+      finalResult = 'Empate, ¡vaya tensión!';
     }
+    infoPanel.textContent = `${finalResult} Marcador final: ${userScore} - ${compScore}`;
+    startBtn.disabled = false;
+    currentMatchIndex++;
+  } else {
+    nextShotBtn.disabled = false;
+    infoPanel.textContent = `¡Tira el penalti! Intento ${shotsTaken + 1} de ${totalShots}`;
   }
 
-  // Pantalla título animada
-  function pantallaTitulo(texto) {
-    pantallaTituloEl.textContent = texto;
-    pantallaTituloEl.style.display = "block";
-    setTimeout(() => {
-      pantallaTituloEl.style.display = "none";
-    }, 2500);
-  }
+  isShooting = false;
+}
 
-  // Prepara eliminatorias (ejemplo simple con usuario vs rival random)
-  function prepararEliminatorias() {
-    // Rival random distinto del usuario
-    const rivalesPosibles = equipos.filter(e => e.nombre !== equipoUsuario.nombre);
-    const rival = rivalesPosibles[Math.floor(Math.random() * rivalesPosibles.length)];
+// Inicializar app
+function init() {
+  renderTeams();
+  gameContainerEl.style.display = 'none';
+  startBtn.addEventListener('click', () => {
+    if (!playerTeam) return;
+    tournamentData = createTournamentFixture();
+    currentMatchIndex = 0;
+    currentStage = 'group';
+    startMatch();
+  });
+  nextShotBtn.addEventListener('click', shootPenalty);
+}
 
-    partidosFase = [
-      { equipo1: equipoUsuario, equipo2: rival, turno: "penalti" }
-    ];
-    partidoActual = 0;
-    golesUsuario = 0;
-    golesRival = 0;
+init();
 
-    infoPartido.textContent = `Octavos: ${equipoUsuario.nombre} vs ${rival.nombre}. Elige zona para disparar`;
-    resultadoEl.textContent = "";
-    mostrarTablaGrupo();
-    nextPartidoBtn.disabled = false;
-  }
-
-  // Arrancar torneo tras seleccionar equipo
-  function comenzarTorneo() {
-    const nombreEquipo = equipoSelect.value;
-    if(!nombreEquipo) {
-      alert("Selecciona un equipo primero");
-      return;
-    }
-    equipoUsuario = obtenerEquipo(nombreEquipo);
-    pantallaTitulo(`Has elegido: ${equipoUsuario.nombre}`);
-    faseActual = "grupos";
-    inicializarGrupos();
-    mostrarTablaGrupo();
-    partidoActual = 0;
-    golesUsuario = 0;
-    golesRival = 0;
-
-    // Preparar partidos fase grupos (ejemplo solo usuario vs primer rival)
-    const grupoLetra = Object.keys(grupos).find(g => grupos[g].some(e => e.nombre === equipoUsuario.nombre));
-    const grupoEquipos = grupos[grupoLetra];
-    const rival = grupoEquipos.find(e => e.nombre !== equipoUsuario.nombre);
-
-    partidosFase = [];
-    for(let i=0; i<tirosPorPartido; i++){
-      partidosFase.push({ equipo1: equipoUsuario, equipo2: rival, turno: "penalti" });
-    }
-
-    infoPartido.textContent = `Fase de grupos: ${equipoUsuario.nombre} vs ${rival.nombre}. Elige zona para disparar`;
-    resultadoEl.textContent = "";
-    nextPartidoBtn.disabled = true;
-  }
-
-  // Eventos
-  startBtn.onclick = () => {
-    comenzarTorneo();
-  };
-
-  cargarSelectorEquipos();
-  inicializarJuego();
-})();  
 </script>
 
 </body>
