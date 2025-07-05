@@ -2,766 +2,1020 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>XFootballHub - Mundial Penaltis 2022</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Mundial 2022 - Torneo de Penales</title>
 <style>
-  /* Fuente moderna */
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap');
-
-  /* Reset y base */
-  * {
-    box-sizing: border-box;
-  }
+  /* Reset */
+  * {margin:0;padding:0;box-sizing:border-box;}
   body {
-    margin: 0; padding: 0;
-    font-family: 'Montserrat', sans-serif;
-    background: linear-gradient(180deg, #3b8d99 0%, #6b4226 100%);
-    color: #fff;
-    display: flex;
-    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0a274d, #036bfc);
+    color: #eee;
     min-height: 100vh;
-    overflow-x: hidden;
-  }
-  h1,h2,h3 {
-    margin: 0;
-  }
-  button {
-    cursor: pointer;
-    border: none;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 1rem;
-    padding: 10px 18px;
-    background-color: #1de9b6;
-    color: #004d40;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-    transition: background-color 0.3s ease;
-  }
-  button:hover:not(:disabled) {
-    background-color: #00bfa5;
-  }
-  button:disabled {
-    background-color: #004d40;
-    color: #a7ffeb88;
-    cursor: default;
-  }
-
-  /* Contenedor general */
-  #app {
-    flex: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 10px 20px 30px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-
-  /* Cabecera */
-  header {
-    text-align: center;
-    margin-bottom: 12px;
     user-select: none;
   }
-  header h1 {
-    font-size: 2.8rem;
-    text-shadow: 0 3px 7px rgba(0,0,0,0.7);
+  h1 {
+    margin: 20px 0;
+    font-weight: 900;
+    font-size: 2.6rem;
+    text-shadow: 2px 2px 6px #0009;
   }
-  header p {
-    font-size: 1.1rem;
-    margin-top: 6px;
-    font-weight: 600;
-    color: #a7ffebcc;
+  #app {
+    background: #003974dd;
+    border-radius: 16px;
+    max-width: 900px;
+    width: 95vw;
+    padding: 20px 25px 30px 25px;
+    box-shadow: 0 0 25px #036bfcaa;
   }
-
-  /* Equipo y selección */
-  #team-selection {
-    margin: 15px 0 30px;
-    width: 100%;
-    max-width: 400px;
-    background: rgba(0,0,0,0.3);
-    padding: 12px 16px;
-    border-radius: 14px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    user-select: none;
-  }
-  #team-selection label {
-    font-weight: 600;
-    font-size: 1.2rem;
-  }
-  #team-selection select {
-    margin-left: 12px;
-    font-size: 1.1rem;
-    padding: 6px 8px;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    font-family: inherit;
-  }
-
-  /* Área del juego */
-  #game-area {
-    position: relative;
-    width: 100%;
-    max-width: 700px;
-    height: 450px;
-    background: linear-gradient(to top, #4CAF50 0%, #81C784 100%);
-    border-radius: 20px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.7);
-    overflow: hidden;
-    user-select: none;
-  }
-
-  /* Portería - frontal */
-  #goal {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 460px;
-    height: 210px;
-    border: 5px solid white;
-    border-radius: 0 0 50px 50px / 0 0 80px 80px;
-    background: #ddd;
-    box-shadow:
-      inset 0 0 20px 3px rgba(255,255,255,0.85),
-      0 0 25px 4px rgba(255,255,255,0.7);
-  }
-  #goal::before {
-    content: '';
-    position: absolute;
-    top: 5px; left: 50%;
-    transform: translateX(-50%);
-    width: 440px;
-    height: 5px;
-    background: white;
-    border-radius: 10px;
-  }
-
-  /* Divisiones de zonas de tiro (9 rectángulos) */
-  .shoot-zone {
-    position: absolute;
-    border: 2px dashed rgba(30,230,182,0.7);
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    border-radius: 8px;
-  }
-  .shoot-zone:hover {
-    background-color: rgba(30,230,182,0.3);
-  }
-  /* Grid para 9 zonas dentro de la portería */
-  #zones-container {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 460px;
-    height: 210px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 10px;
-    pointer-events: none; /* desactivado hasta que habilitemos */
-  }
-  .shoot-zone {
-    pointer-events: auto; /* activar para zonas */
-  }
-
-  /* Personajes y balón (canvas animado) */
-  #field-canvas {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 700px;
-    height: 450px;
-    z-index: 10;
-    background: transparent;
-  }
-
-  /* Zona inferior donde se ven botones e info */
-  #controls {
-    margin-top: 20px;
-    width: 100%;
-    max-width: 700px;
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  #difficulty-select {
-    font-size: 1rem;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    font-family: inherit;
-  }
-  #start-btn {
-    flex: 1 1 160px;
-  }
-  #next-match-btn {
-    flex: 1 1 160px;
+  /* Layout general */
+  #setup, #tournament, #match, #result, #celebration {
     display: none;
   }
-
-  /* Mensajes y estado */
-  #message-box {
-    margin-top: 20px;
+  #setup.active, #tournament.active, #match.active, #result.active, #celebration.active {
+    display: block;
+  }
+  /* Setup */
+  #setup > div {
+    margin-bottom: 15px;
+  }
+  label {
     font-weight: 700;
-    font-size: 1.3rem;
-    min-height: 2rem;
+    margin-bottom: 6px;
+    display: block;
+  }
+  select, button {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+  }
+  select {
+    background: #1259b3cc;
+    color: #fff;
+  }
+  button {
+    background: #ffcc00;
+    color: #222;
+  }
+  button:hover:not(:disabled) {
+    background: #ffd633;
+  }
+  /* Tournament brackets */
+  #groups {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
+    gap: 18px;
+  }
+  .group {
+    background: #004a99dd;
+    padding: 12px 10px 10px 10px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 8px #004080;
+  }
+  .group h3 {
     text-align: center;
-    color: #e0f7fa;
-    text-shadow: 0 0 6px #00bfa5;
+    font-weight: 900;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
     user-select: none;
   }
-
+  .team:hover {
+    background: #036bfcaa;
+  }
+  .team.selected {
+    background: #ffd633aa;
+    color: #003974;
+    font-weight: 900;
+  }
+  .team img {
+    width: 28px;
+    height: 18px;
+    object-fit: contain;
+    border-radius: 2px;
+  }
+  .team-name {
+    flex-grow: 1;
+  }
+  /* Match display */
+  #match {
+    margin-top: 25px;
+    text-align: center;
+  }
+  #match h2 {
+    margin-bottom: 10px;
+  }
+  #penalty-area {
+    position: relative;
+    margin: 20px auto 15px auto;
+    width: 360px;
+    height: 200px;
+    background: #4caf5080;
+    border-radius: 10px;
+    box-shadow: inset 0 0 35px #4caf5080;
+  }
+  /* Portería */
+  #goal {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    height: 130px;
+    background: linear-gradient(to bottom, #eee, #aaa);
+    border: 4px solid #ccc;
+    border-radius: 0 0 90px 90px / 0 0 150px 150px;
+    box-shadow: 0 0 15px #ccc inset;
+  }
+  /* Divisiones portería 3x3 */
+  .goal-zone {
+    position: absolute;
+    width: 106px;
+    height: 42px;
+    border: 1.5px solid #6666;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .goal-zone:hover {
+    background-color: #81d4faaa;
+  }
+  /* 9 zones positions */
+  .zone-0 { top: 0; left: 0; }
+  .zone-1 { top: 0; left: 106px; }
+  .zone-2 { top: 0; left: 212px; }
+  .zone-3 { top: 42px; left: 0; }
+  .zone-4 { top: 42px; left: 106px; }
+  .zone-5 { top: 42px; left: 212px; }
+  .zone-6 { top: 84px; left: 0; }
+  .zone-7 { top: 84px; left: 106px; }
+  .zone-8 { top: 84px; left: 212px; }
+  /* Jugador y portero */
+  #player, #goalkeeper {
+    position: absolute;
+    bottom: 0;
+    width: 60px;
+    height: 120px;
+    background: #222;
+    border-radius: 50% 50% 20% 20% / 50% 50% 20% 20%;
+    box-shadow: inset 0 -10px 12px #555;
+    transition: transform 0.4s ease;
+  }
+  #player {
+    left: 40px;
+  }
+  #goalkeeper {
+    left: 260px;
+  }
+  /* Colores para player según país */
+  #player.red { background: #d32f2f; box-shadow: inset 0 -10px 12px #b71c1c;}
+  #player.blue { background: #1976d2; box-shadow: inset 0 -10px 12px #0d47a1;}
+  #player.green { background: #388e3c; box-shadow: inset 0 -10px 12px #1b5e20;}
+  #player.yellow { background: #fbc02d; box-shadow: inset 0 -10px 12px #f9a825;}
+  #player.orange { background: #f57c00; box-shadow: inset 0 -10px 12px #e65100;}
+  /* Balón */
+  #ball {
+    position: absolute;
+    bottom: 130px;
+    left: 90px;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    border: 3px solid #222;
+    box-shadow: inset 0 0 8px #aaa;
+    transition: all 0.7s ease-in-out;
+  }
+  /* Marcador */
+  #scoreboard {
+    margin: 15px 0 5px 0;
+    font-size: 1.3rem;
+    font-weight: 900;
+    letter-spacing: 1.3px;
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+  }
+  #scoreboard > div {
+    background: #036bfcaa;
+    padding: 6px 14px;
+    border-radius: 12px;
+    min-width: 80px;
+  }
+  /* Resultado y botones */
+  #result p {
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+  #result button {
+    width: 140px;
+    margin-top: 10px;
+  }
+  /* Celebración */
+  #celebration {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #ffd633;
+    text-shadow: 0 0 10px #fff700, 0 0 20px #ffb300;
+  }
   /* Responsive */
-  @media (max-width: 800px) {
-    #game-area {
-      width: 100%;
-      height: 320px;
+  @media (max-width: 480px) {
+    #penalty-area {
+      width: 320px;
+      height: 180px;
     }
     #goal {
-      width: 320px;
-      height: 145px;
-      bottom: 25px;
+      width: 280px;
+      height: 110px;
+      top: 25px;
     }
-    #zones-container {
-      width: 320px;
-      height: 145px;
-      bottom: 25px;
+    .goal-zone {
+      width: 93px;
+      height: 36px;
     }
-    #field-canvas {
-      width: 100%;
-      height: 320px;
+    #player {
+      left: 25px;
+      width: 50px;
+      height: 100px;
     }
-    #controls {
-      max-width: 100%;
-      gap: 8px;
+    #goalkeeper {
+      left: 220px;
+      width: 50px;
+      height: 100px;
+    }
+    #ball {
+      left: 70px;
+      width: 35px;
+      height: 35px;
+      bottom: 110px;
+    }
+    #scoreboard > div {
+      min-width: 65px;
+      font-size: 1.1rem;
     }
   }
-  @media (max-width: 400px) {
-    header h1 {
-      font-size: 2rem;
-    }
-    button {
-      padding: 8px 14px;
-      font-size: 0.9rem;
-    }
-  }
-
 </style>
 </head>
 <body>
 
+<h1>Mundial 2022 - Torneo de Penales</h1>
 <div id="app">
-  <header>
-    <h1>⚽ Mundial Penaltis 2022</h1>
-    <p>Selecciona tu equipo y lanza penales para ganar el Mundial</p>
-  </header>
 
-  <section id="team-selection">
-    <label for="team-select">Elige tu equipo:</label>
-    <select id="team-select" aria-label="Selección de equipo para el torneo"></select>
-  </section>
-
-  <section id="game-area" aria-label="Campo de penaltis">
-    <div id="goal" role="img" aria-label="Portería de futbol"></div>
-
-    <!-- Zonas para tirar -->
-    <div id="zones-container" aria-label="Zonas de tiro">
-      <div class="shoot-zone" data-zone="0" aria-label="Zona tiro arriba izquierda"></div>
-      <div class="shoot-zone" data-zone="1" aria-label="Zona tiro arriba centro"></div>
-      <div class="shoot-zone" data-zone="2" aria-label="Zona tiro arriba derecha"></div>
-      <div class="shoot-zone" data-zone="3" aria-label="Zona tiro medio izquierda"></div>
-      <div class="shoot-zone" data-zone="4" aria-label="Zona tiro medio centro"></div>
-      <div class="shoot-zone" data-zone="5" aria-label="Zona tiro medio derecha"></div>
-      <div class="shoot-zone" data-zone="6" aria-label="Zona tiro abajo izquierda"></div>
-      <div class="shoot-zone" data-zone="7" aria-label="Zona tiro abajo centro"></div>
-      <div class="shoot-zone" data-zone="8" aria-label="Zona tiro abajo derecha"></div>
+  <!-- Setup: Selección de equipo y dificultad -->
+  <section id="setup" class="active">
+    <div>
+      <label for="team-select">Selecciona tu equipo (elige uno para jugar):</label>
+      <select id="team-select" aria-label="Seleccionar equipo">
+        <!-- Equipos se cargan por JS -->
+      </select>
     </div>
-
-    <!-- Canvas para dibujo animaciones -->
-    <canvas id="field-canvas" width="700" height="450" aria-label="Animación del juego"></canvas>
+    <div>
+      <label for="difficulty-select">Selecciona dificultad:</label>
+      <select id="difficulty-select" aria-label="Seleccionar dificultad">
+        <option value="easy">Fácil</option>
+        <option value="medium" selected>Media</option>
+        <option value="hard">Difícil</option>
+      </select>
+    </div>
+    <button id="start-btn" aria-label="Iniciar torneo" disabled>Iniciar Torneo</button>
   </section>
 
-  <section id="controls" aria-label="Controles del juego">
-    <select id="difficulty-select" aria-label="Selecciona dificultad">
-      <option value="1">Fácil</option>
-      <option value="2">Medio</option>
-      <option value="3">Difícil</option>
-    </select>
-    <button id="start-btn" aria-label="Iniciar partido">Iniciar partido</button>
-    <button id="next-match-btn" aria-label="Siguiente partido">Siguiente partido</button>
+  <!-- Torneo: fase de grupos -->
+  <section id="tournament" aria-live="polite">
+    <h2>Fase de Grupos - Selecciona un partido para jugar penales</h2>
+    <div id="groups"></div>
+    <button id="next-phase-btn" disabled>Avanzar a Octavos</button>
   </section>
 
-  <section id="message-box" role="alert" aria-live="polite"></section>
+  <!-- Partido: penales -->
+  <section id="match" aria-live="polite">
+    <h2 id="match-title">Partido de Penales</h2>
+    <div id="scoreboard" role="region" aria-label="Marcador del partido">
+      <div id="score-player" aria-live="polite">Tu Equipo: 0</div>
+      <div id="score-opponent" aria-live="polite">Rival: 0</div>
+    </div>
+    <div id="penalty-area" aria-label="Área de penalti">
+      <div id="goal" role="img" aria-label="Portería dividida en nueve zonas">
+        <!-- 9 zonas clicables -->
+        <div class="goal-zone zone-0" data-zone="0" tabindex="0" aria-label="Zona superior izquierda"></div>
+        <div class="goal-zone zone-1" data-zone="1" tabindex="0" aria-label="Zona superior centro"></div>
+        <div class="goal-zone zone-2" data-zone="2" tabindex="0" aria-label="Zona superior derecha"></div>
+        <div class="goal-zone zone-3" data-zone="3" tabindex="0" aria-label="Zona media izquierda"></div>
+        <div class="goal-zone zone-4" data-zone="4" tabindex="0" aria-label="Zona media centro"></div>
+        <div class="goal-zone zone-5" data-zone="5" tabindex="0" aria-label="Zona media derecha"></div>
+        <div class="goal-zone zone-6" data-zone="6" tabindex="0" aria-label="Zona inferior izquierda"></div>
+        <div class="goal-zone zone-7" data-zone="7" tabindex="0" aria-label="Zona inferior centro"></div>
+        <div class="goal-zone zone-8" data-zone="8" tabindex="0" aria-label="Zona inferior derecha"></div>
+      </div>
+      <div id="player" aria-label="Jugador tirador"></div>
+      <div id="goalkeeper" aria-label="Portero"></div>
+      <div id="ball" aria-label="Balón"></div>
+    </div>
+    <p id="match-info" style="margin-top:10px; font-weight:700;"></p>
+  </section>
+
+  <!-- Resultado partido -->
+  <section id="result" aria-live="polite">
+    <p id="result-message"></p>
+    <button id="continue-btn">Continuar</button>
+  </section>
+
+  <!-- Celebración título -->
+  <section id="celebration" aria-live="polite">
+    <p id="champion-message"></p>
+    <button id="restart-btn">Reiniciar Torneo</button>
+  </section>
+
 </div>
 
 <script>
 (() => {
-  // Configuraciones básicas
+  'use strict';
+
+  // Equipos del Mundial 2022 con bandera y colores principales
+  // Las banderas son urls directas, para simplificar
   const TEAMS = [
-    { name: 'Argentina', color: '#75aadb', flag: '🇦🇷' },
-    { name: 'Brasil', color: '#009b3a', flag: '🇧🇷' },
-    { name: 'Francia', color: '#0055a4', flag: '🇫🇷' },
-    { name: 'Inglaterra', color: '#cf142b', flag: '🏴' },
-    { name: 'España', color: '#aa151b', flag: '🇪🇸' },
-    { name: 'Alemania', color: '#000', flag: '🇩🇪' },
-    { name: 'Portugal', color: '#006200', flag: '🇵🇹' },
-    { name: 'Países Bajos', color: '#ff6a00', flag: '🇳🇱' },
+    {code:'QAT',name:'Qatar',flag:'https://flagcdn.com/w40/qa.png',color:'red'},
+    {code:'ECU',name:'Ecuador',flag:'https://flagcdn.com/w40/ec.png',color:'yellow'},
+    {code:'SEN',name:'Senegal',flag:'https://flagcdn.com/w40/sn.png',color:'green'},
+    {code:'NED',name:'Países Bajos',flag:'https://flagcdn.com/w40/nl.png',color:'orange'},
+    {code:'ENG',name:'Inglaterra',flag:'https://flagcdn.com/w40/gb-eng.png',color:'blue'},
+    {code:'IRN',name:'Irán',flag:'https://flagcdn.com/w40/ir.png',color:'green'},
+    {code:'USA',name:'Estados Unidos',flag:'https://flagcdn.com/w40/us.png',color:'blue'},
+    {code:'WAL',name:'Gales',flag:'https://flagcdn.com/w40/gb-wls.png',color:'red'},
+    {code:'ARG',name:'Argentina',flag:'https://flagcdn.com/w40/ar.png',color:'lightblue'},
+    {code:'KSA',name:'Arabia Saudita',flag:'https://flagcdn.com/w40/sa.png',color:'green'},
+    {code:'MEX',name:'México',flag:'https://flagcdn.com/w40/mx.png',color:'green'},
+    {code:'POL',name:'Polonia',flag:'https://flagcdn.com/w40/pl.png',color:'red'},
+    {code:'FRA',name:'Francia',flag:'https://flagcdn.com/w40/fr.png',color:'blue'},
+    {code:'AUS',name:'Australia',flag:'https://flagcdn.com/w40/au.png',color:'yellow'},
+    {code:'DEN',name:'Dinamarca',flag:'https://flagcdn.com/w40/dk.png',color:'red'},
+    {code:'TUN',name:'Túnez',flag:'https://flagcdn.com/w40/tn.png',color:'red'},
+    {code:'ESP',name:'España',flag:'https://flagcdn.com/w40/es.png',color:'red'},
+    {code:'CRC',name:'Costa Rica',flag:'https://flagcdn.com/w40/cr.png',color:'red'},
+    {code:'GER',name:'Alemania',flag:'https://flagcdn.com/w40/de.png',color:'black'},
+    {code:'JPN',name:'Japón',flag:'https://flagcdn.com/w40/jp.png',color:'red'},
+    {code:'BEL',name:'Bélgica',flag:'https://flagcdn.com/w40/be.png',color:'black'},
+    {code:'CAN',name:'Canadá',flag:'https://flagcdn.com/w40/ca.png',color:'red'},
+    {code:'MAR',name:'Marruecos',flag:'https://flagcdn.com/w40/ma.png',color:'red'},
+    {code:'CRO',name:'Croacia',flag:'https://flagcdn.com/w40/hr.png',color:'red'},
+    {code:'BRA',name:'Brasil',flag:'https://flagcdn.com/w40/br.png',color:'green'},
+    {code:'SRB',name:'Serbia',flag:'https://flagcdn.com/w40/rs.png',color:'red'},
+    {code:'SUI',name:'Suiza',flag:'https://flagcdn.com/w40/ch.png',color:'red'},
+    {code:'CMR',name:'Camerún',flag:'https://flagcdn.com/w40/cm.png',color:'green'},
+    {code:'POR',name:'Portugal',flag:'https://flagcdn.com/w40/pt.png',color:'red'},
+    {code:'GHA',name:'Ghana',flag:'https://flagcdn.com/w40/gh.png',color:'black'},
+    {code:'URU',name:'Uruguay',flag:'https://flagcdn.com/w40/uy.png',color:'lightblue'},
+    {code:'KOR',name:'Corea del Sur',flag:'https://flagcdn.com/w40/kr.png',color:'red'},
   ];
 
-  // Estado del juego
-  let playerTeam = null;
-  let opponentTeam = null;
-  let difficulty = 1;
+  // Grupos reales
+  const GROUPS = {
+    A: ['QAT','ECU','SEN','NED'],
+    B: ['ENG','IRN','USA','WAL'],
+    C: ['ARG','KSA','MEX','POL'],
+    D: ['FRA','AUS','DEN','TUN'],
+    E: ['ESP','CRC','GER','JPN'],
+    F: ['BEL','CAN','MAR','CRO'],
+    G: ['BRA','SRB','SUI','CMR'],
+    H: ['POR','GHA','URU','KOR'],
+  };
 
-  // Canvas y contexto
-  const canvas = document.getElementById('field-canvas');
-  const ctx = canvas.getContext('2d');
+  // Para guardar estado del torneo
+  let state = {
+    phase: 'setup', // setup, groups, octavos, cuartos, semis, final, celebration
+    userTeamCode: null,
+    difficulty: 'medium',
+    groupsData: {}, // equipos con stats (puntos, goles)
+    knockoutMatches: [], // partidos eliminación directa
+    currentMatch: null,
+    userScore: 0,
+    opponentScore: 0,
+    shotsTaken: 0,
+    shotsGoalkeeper: 0,
+    maxShots: 5,
+    userAdvances: false,
+  };
 
-  // Zonas de tiro con coordenadas relativas al canvas
-  // Cada zona: { x, y, w, h } para centrar el balón en esa zona
-  const zoneCoordinates = [
-    {x: 125, y: 90}, {x: 350, y: 90}, {x: 575, y: 90},
-    {x: 125, y: 190}, {x: 350, y: 190}, {x: 575, y: 190},
-    {x: 125, y: 300}, {x: 350, y: 300}, {x: 575, y: 300},
-  ];
+  // DOM refs
+  const setupSection = document.getElementById('setup');
+  const tournamentSection = document.getElementById('tournament');
+  const matchSection = document.getElementById('match');
+  const resultSection = document.getElementById('result');
+  const celebrationSection = document.getElementById('celebration');
 
-  // Tamaños personajes
-  const PLAYER_SIZE = { width: 60, height: 130 };
-  const GOALIE_SIZE = { width: 60, height: 130 };
-  const BALL_RADIUS = 18;
-
-  // Estado animación
-  let animating = false;
-  let animationFrameId = null;
-
-  // Parámetros animación
-  let ballPos = { x: 350, y: 380 }; // posición inicial balón (pie del tirador)
-  let ballTarget = null;
-  let ballMoving = false;
-
-  let goaliePos = { x: 350, y: 120 }; // portero centro
-  let goalieTargetX = null;
-  let goalieMoving = false;
-
-  // Resultado y turno
-  let isShooting = false;
-  let currentShotZone = null;
-  let goalsScored = 0;
-  let shotsTaken = 0;
-  let maxShots = 5;
-
-  // DOM references
   const teamSelect = document.getElementById('team-select');
   const difficultySelect = document.getElementById('difficulty-select');
   const startBtn = document.getElementById('start-btn');
-  const nextMatchBtn = document.getElementById('next-match-btn');
-  const messageBox = document.getElementById('message-box');
-  const zonesContainer = document.getElementById('zones-container');
-  const shootZones = document.querySelectorAll('.shoot-zone');
 
-  // Inicializar selección equipos
-  function initTeamSelection() {
-    TEAMS.forEach((team, idx) => {
-      const option = document.createElement('option');
-      option.value = idx;
-      option.textContent = `${team.flag} ${team.name}`;
-      teamSelect.appendChild(option);
+  const groupsDiv = document.getElementById('groups');
+  const nextPhaseBtn = document.getElementById('next-phase-btn');
+
+  const matchTitle = document.getElementById('match-title');
+  const scorePlayer = document.getElementById('score-player');
+  const scoreOpponent = document.getElementById('score-opponent');
+  const matchInfo = document.getElementById('match-info');
+
+  const goalZones = [...document.querySelectorAll('.goal-zone')];
+  const playerDiv = document.getElementById('player');
+  const goalkeeperDiv = document.getElementById('goalkeeper');
+  const ballDiv = document.getElementById('ball');
+
+  const resultMessage = document.getElementById('result-message');
+  const continueBtn = document.getElementById('continue-btn');
+  const championMessage = document.getElementById('champion-message');
+  const restartBtn = document.getElementById('restart-btn');
+
+  // Función para obtener datos equipo por código
+  function getTeamByCode(code) {
+    return TEAMS.find(t => t.code === code);
+  }
+
+  // Cargar equipos en selector
+  function loadTeamsSelector() {
+    TEAMS.forEach(team => {
+      const opt = document.createElement('option');
+      opt.value = team.code;
+      opt.textContent = team.name;
+      opt.style.color = team.color;
+      teamSelect.appendChild(opt);
     });
   }
 
-  // Dibujar personaje humanoide simple - tirador o portero
-  // Posición x,y = centro base, color = camiseta
-  function drawCharacter(x, y, color, isGoalie = false, animationState = {}) {
-    const headRadius = 20;
-    const bodyWidth = 50;
-    const bodyHeight = 90;
-
-    // Sombra
-    ctx.shadowColor = 'rgba(0,0,0,0.2)';
-    ctx.shadowBlur = 6;
-    ctx.shadowOffsetY = 6;
-
-    // Cabeza
-    ctx.fillStyle = '#fce1c4';
-    ctx.beginPath();
-    ctx.ellipse(x, y - bodyHeight - headRadius, headRadius, headRadius + 3, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.closePath();
-
-    // Cuello
-    ctx.fillRect(x - 8, y - bodyHeight, 16, 10);
-
-    // Cuerpo
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.ellipse(x, y - bodyHeight / 2, bodyWidth / 2, bodyHeight / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.closePath();
-
-    // Piernas (simplificado)
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 6;
-    ctx.lineCap = 'round';
-
-    // Pierna izquierda
-    ctx.beginPath();
-    ctx.moveTo(x - 15, y);
-    ctx.lineTo(x - 20, y + 55);
-    ctx.stroke();
-
-    // Pierna derecha
-    ctx.beginPath();
-    ctx.moveTo(x + 15, y);
-    ctx.lineTo(x + 20, y + 55);
-    ctx.stroke();
-
-    // Brazos animados - portero salta para cubrir zona
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = color;
-
-    if (isGoalie && animationState.goalieDive) {
-      // Portero brazo hacia izquierda o derecha
-      ctx.beginPath();
-      ctx.moveTo(x, y - bodyHeight + 20);
-      ctx.lineTo(x + animationState.goalieDive * 50, y - bodyHeight + 70);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(x, y - bodyHeight + 20);
-      ctx.lineTo(x - animationState.goalieDive * 30, y - bodyHeight + 60);
-      ctx.stroke();
-    } else {
-      // Tirador brazos
-      ctx.beginPath();
-      ctx.moveTo(x, y - bodyHeight + 30);
-      ctx.lineTo(x - 20, y - bodyHeight + 60);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(x, y - bodyHeight + 30);
-      ctx.lineTo(x + 20, y - bodyHeight + 60);
-      ctx.stroke();
-    }
-
-    ctx.shadowBlur = 0;
+  // Inicializar grupos con datos para clasificación
+  function initGroupsData() {
+    state.groupsData = {};
+    Object.entries(GROUPS).forEach(([grp, codes]) => {
+      state.groupsData[grp] = codes.map(code => ({
+        code,
+        team: getTeamByCode(code),
+        points: 0,
+        goalsFor: 0,
+        goalsAgainst: 0,
+        played: 0,
+      }));
+    });
   }
 
-  // Dibujar portería (opcional para mejorar)
-  function drawGoal() {
-    // La portería ya está en CSS, aquí puede ir la red o detalles
+  // Mostrar grupos y equipos con stats (para la fase grupos)
+  function renderGroups() {
+    groupsDiv.innerHTML = '';
+    Object.entries(state.groupsData).forEach(([grp, teams]) => {
+      const groupDiv = document.createElement('div');
+      groupDiv.className = 'group';
+      const title = document.createElement('h3');
+      title.textContent = `Grupo ${grp}`;
+      groupDiv.appendChild(title);
+      teams.forEach(t => {
+        const teamDiv = document.createElement('div');
+        teamDiv.className = 'team';
+        teamDiv.dataset.teamCode = t.code;
+        teamDiv.innerHTML = `
+          <img src="${t.team.flag}" alt="Bandera de ${t.team.name}" />
+          <span class="team-name">${t.team.name}</span>
+          <span>Pts: ${t.points} | GF: ${t.goalsFor} | GA: ${t.goalsAgainst}</span>
+        `;
+        groupDiv.appendChild(teamDiv);
+      });
+      groupsDiv.appendChild(groupDiv);
+    });
   }
 
-  // Dibujar balón (círculo con detalles)
-  function drawBall(x, y) {
-    // Sombra
-    ctx.shadowColor = 'rgba(0,0,0,0.7)';
-    ctx.shadowBlur = 12;
-    ctx.shadowOffsetX = 3;
-    ctx.shadowOffsetY = 3;
-
-    // Cuerpo balón
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(x, y, BALL_RADIUS, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Detalles pentágonos negros
-    ctx.fillStyle = '#000';
-    // Simple pentágono frontal
-    ctx.beginPath();
-    ctx.moveTo(x, y - BALL_RADIUS / 2);
-    for(let i=1; i<5; i++) {
-      const angle = i * (Math.PI * 2 / 5) - Math.PI / 2;
-      ctx.lineTo(x + Math.cos(angle) * BALL_RADIUS / 2, y + Math.sin(angle) * BALL_RADIUS / 2);
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    // Reset shadow
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
+  // Comprobar si usuario ha seleccionado equipo válido
+  function checkStartBtn() {
+    startBtn.disabled = !teamSelect.value;
   }
 
-  // Animar tiro y portero
-  function animateShot() {
-    if (!ballMoving) return;
-
-    // Mover balón hacia objetivo (suavizado)
-    const speed = 15 + difficulty * 5; // más rápido en dificultad alta
-    const dx = ballTarget.x - ballPos.x;
-    const dy = ballTarget.y - ballPos.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist < speed) {
-      ballPos.x = ballTarget.x;
-      ballPos.y = ballTarget.y;
-      ballMoving = false;
-
-      // Verificar si portero atajó (acierto en zona)
-      const zoneX = goaliePos.x;
-      const targetX = ballTarget.x;
-      const catchMargin = 60 - (difficulty * 10);
-      const caught = Math.abs(zoneX - targetX) < catchMargin;
-
-      if (caught) {
-        messageBox.textContent = '¡Parada del portero! 🚫';
-      } else {
-        messageBox.textContent = '¡GOOOOL! 🎉';
-        goalsScored++;
-      }
-
-      shotsTaken++;
-
-      // Habilitar siguiente acción
-      startBtn.textContent = shotsTaken < maxShots ? 'Tirar siguiente penalti' : 'Finalizar partido';
-      startBtn.disabled = false;
-
-      if (shotsTaken >= maxShots) {
-        startBtn.disabled = true;
-        nextMatchBtn.style.display = 'inline-block';
-        messageBox.textContent += ` Resultado final: ${goalsScored} / ${maxShots}`;
-      }
-      return;
-    }
-
-    // Mover portero hacia objetivo (simulación rápida)
-    if (goalieMoving) {
-      const goalieSpeed = 25;
-      if (Math.abs(goalieTargetX - goaliePos.x) < goalieSpeed) {
-        goaliePos.x = goalieTargetX;
-        goalieMoving = false;
-      } else {
-        goaliePos.x += goaliePos.x < goalieTargetX ? goalieSpeed : -goalieSpeed;
-      }
-    }
-
-    // Mover balón
-    ballPos.x += (dx / dist) * speed;
-    ballPos.y += (dy / dist) * speed;
-
-    drawFrame();
-
-    animationFrameId = requestAnimationFrame(animateShot);
+  // Iniciar torneo
+  function startTournament() {
+    state.userTeamCode = teamSelect.value;
+    state.difficulty = difficultySelect.value;
+    state.phase = 'groups';
+    initGroupsData();
+    renderGroups();
+    setupSection.classList.remove('active');
+    tournamentSection.classList.add('active');
+    nextPhaseBtn.disabled = true;
+    generateGroupMatches();
   }
 
-  // Dibujar cada frame
-  function drawFrame() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Fondo campo simple (césped)
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#4caf50');
-    gradient.addColorStop(1, '#81c784');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Dibujar portería (un marco simple para reforzar)
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.moveTo(120, 120);
-    ctx.lineTo(580, 120);
-    ctx.lineTo(580, 320);
-    ctx.lineTo(120, 320);
-    ctx.closePath();
-    ctx.stroke();
-
-    // Dibujar redes (líneas verticales y horizontales)
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-    ctx.lineWidth = 2;
-    for(let x=150; x<580; x+=40) {
-      ctx.beginPath();
-      ctx.moveTo(x,120);
-      ctx.lineTo(x,320);
-      ctx.stroke();
+  // Generar partidos de fase grupos (no jugables, simulados)
+  // Para simplificar, aquí no vamos a jugar todos, solo simularemos todos los partidos y luego solo jugarás penales en los partidos que selecciones (o solo los partidos del usuario)
+  // Sin embargo, para torneo de penales nos interesa solo los partidos que involucren al equipo usuario
+  let groupMatches = [];
+  function generateGroupMatches() {
+    groupMatches = [];
+    // Cada grupo 6 partidos (4 equipos)
+    for (const [grp, teams] of Object.entries(state.groupsData)) {
+      // Partidos: 0-1,0-2,0-3,1-2,1-3,2-3
+      const t = teams;
+      groupMatches.push({group: grp, teamA: t[0].code, teamB: t[1].code, played:false, goalsA:0, goalsB:0});
+      groupMatches.push({group: grp, teamA: t[0].code, teamB: t[2].code, played:false, goalsA:0, goalsB:0});
+      groupMatches.push({group: grp, teamA: t[0].code, teamB: t[3].code, played:false, goalsA:0, goalsB:0});
+      groupMatches.push({group: grp, teamA: t[1].code, teamB: t[2].code, played:false, goalsA:0, goalsB:0});
+      groupMatches.push({group: grp, teamA: t[1].code, teamB: t[3].code, played:false, goalsA:0, goalsB:0});
+      groupMatches.push({group: grp, teamA: t[2].code, teamB: t[3].code, played:false, goalsA:0, goalsB:0});
     }
-    for(let y=160; y<320; y+=30) {
-      ctx.beginPath();
-      ctx.moveTo(120,y);
-      ctx.lineTo(580,y);
-      ctx.stroke();
-    }
+    renderGroupMatches();
+  }
 
-    // Dibujar zonas (transparentes)
-    shootZones.forEach(zone => {
-      const rect = zone.getBoundingClientRect();
-      // no dibujamos en canvas, zonas están en HTML
+  // Render partidos fase grupos
+  function renderGroupMatches() {
+    // Limpio grupos y muestro cada partido de grupo que incluya equipo usuario para jugar penales.
+    // También podemos mostrar todos los partidos simulados como info pero solo jugar los que involucren al usuario.
+    groupsDiv.innerHTML = '';
+    const userCode = state.userTeamCode;
+
+    const userGroup = Object.entries(state.groupsData).find(([g,ts]) => ts.some(t => t.code === userCode))[0];
+
+    // Mostramos grupo entero con partidos
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'group';
+    const title = document.createElement('h3');
+    title.textContent = `Grupo ${userGroup}`;
+    groupDiv.appendChild(title);
+
+    // Mostrar equipos con stats
+    state.groupsData[userGroup].forEach(t => {
+      const teamDiv = document.createElement('div');
+      teamDiv.className = 'team';
+      teamDiv.dataset.teamCode = t.code;
+      teamDiv.textContent = t.team.name + ` (Pts:${t.points} GF:${t.goalsFor} GA:${t.goalsAgainst})`;
+      groupDiv.appendChild(teamDiv);
     });
 
-    // Dibujar personajes
+    groupsDiv.appendChild(groupDiv);
 
-    // Tirador - posición base (pie balón)
-    const playerX = 350;
-    const playerY = 410;
-    drawCharacter(playerX, playerY, playerTeam.color, false);
+    // Ahora los partidos que involucren al usuario
+    const userMatches = groupMatches.filter(m => (m.teamA === userCode || m.teamB === userCode));
 
-    // Portero animado (se mueve lateralmente para intentar atajar)
-    const goalieAnimation = {
-      goalieDive: goalieMoving ? (goalieTargetX < goaliePos.x ? -1 : 1) : 0
-    };
-    drawCharacter(goaliePos.x, goaliePos.y, opponentTeam.color, true, goalieAnimation);
+    // Lista partidos jugables
+    const matchesListDiv = document.createElement('div');
+    matchesListDiv.style.marginTop = '12px';
 
-    // Dibujar balón
-    drawBall(ballPos.x, ballPos.y);
+    userMatches.forEach((m,i) => {
+      const teamA = getTeamByCode(m.teamA);
+      const teamB = getTeamByCode(m.teamB);
+      const matchDiv = document.createElement('div');
+      matchDiv.className = 'team';
+      matchDiv.tabIndex = 0;
+      matchDiv.style.justifyContent = 'space-between';
+      matchDiv.style.fontWeight = '700';
+      matchDiv.style.backgroundColor = '#1259b3cc';
+      matchDiv.style.borderRadius = '8px';
+      matchDiv.style.margin = '6px 0';
+      matchDiv.dataset.matchIndex = i;
+      matchDiv.textContent = `${teamA.name} vs ${teamB.name} `;
+
+      if(m.played){
+        matchDiv.textContent += `- Resultado: ${m.goalsA} - ${m.goalsB}`;
+        matchDiv.style.backgroundColor = '#4caf5088';
+      } else {
+        matchDiv.style.cursor = 'pointer';
+        matchDiv.addEventListener('click', () => {
+          startPenaltyMatch(m);
+        });
+        matchDiv.addEventListener('keydown', (ev) => {
+          if(ev.key === 'Enter' || ev.key === ' ') {
+            ev.preventDefault();
+            startPenaltyMatch(m);
+          }
+        });
+      }
+
+      matchesListDiv.appendChild(matchDiv);
+    });
+
+    groupsDiv.appendChild(matchesListDiv);
+
+    nextPhaseBtn.disabled = !state.groupsData[userGroup].some(t => t.points >= 1);
   }
 
-  // Seleccionar zona para disparar
-  function onZoneSelected(e) {
-    if (animating || isShooting || shotsTaken >= maxShots) return;
-    const zone = e.currentTarget.getAttribute('data-zone');
-    if (zone === null) return;
+  // Empezar partido penales
+  function startPenaltyMatch(match) {
+    if(state.phase !== 'groups' && state.phase !== 'knockout') return;
+    if(match.played) return;
 
-    // Definir objetivo balón y portero
-    currentShotZone = parseInt(zone);
+    state.currentMatch = match;
+    state.userScore = 0;
+    state.opponentScore = 0;
+    state.shotsTaken = 0;
+    state.shotsGoalkeeper = 0;
+    state.maxShots = 5;
+    matchSection.classList.add('active');
+    tournamentSection.classList.remove('active');
+    resultSection.classList.remove('active');
+    celebrationSection.classList.remove('active');
 
-    ballTarget = {
-      x: zoneCoordinates[currentShotZone].x,
-      y: zoneCoordinates[currentShotZone].y
-    };
+    // Mostrar equipos en título y en marcador
+    const userTeam = getTeamByCode(state.userTeamCode);
+    const oppTeamCode = (match.teamA === state.userTeamCode) ? match.teamB : match.teamA;
+    const oppTeam = getTeamByCode(oppTeamCode);
 
-    // Portero intenta adivinar
-    goalieTargetX = calculateGoalieTarget(ballTarget.x);
+    matchTitle.textContent = `Penales: ${userTeam.name} vs ${oppTeam.name}`;
+    scorePlayer.textContent = `${userTeam.name}: 0`;
+    scoreOpponent.textContent = `${oppTeam.name}: 0`;
+    matchInfo.textContent = 'Selecciona una zona de la portería para tirar.';
 
-    // Iniciar animación disparo
-    isShooting = true;
-    ballMoving = true;
-    goalieMoving = true;
-    startBtn.disabled = true;
-    messageBox.textContent = '¡Tirando penalti...';
+    // Colorear jugador con color equipo
+    playerDiv.className = 'player ' + (userTeam.color || 'blue');
 
-    animateShot();
-  }
+    // Portero random color diferente
+    goalkeeperDiv.className = 'goalkeeper ' + (oppTeam.color || 'yellow');
 
-  // Calcular posición del portero para intentar parar
-  function calculateGoalieTarget(ballX) {
-    // El portero es más listo en dificultad alta (más chances de atajar)
-    let randomness = 80 - difficulty * 20;
-    randomness = Math.max(randomness, 20);
-
-    const guess = ballX + (Math.random() * randomness * 2 - randomness);
-    // Limitar dentro portería
-    return Math.min(Math.max(guess, 120 + GOALIE_SIZE.width / 2), 580 - GOALIE_SIZE.width / 2);
-  }
-
-  // Empezar nuevo partido
-  function startGame() {
-    if (animating || isShooting) return;
-    goalsScored = 0;
-    shotsTaken = 0;
-    currentShotZone = null;
-
-    messageBox.textContent = 'Selecciona una zona para tirar el penalti';
-    startBtn.textContent = 'Tirar penalti';
-    startBtn.disabled = true;
-    nextMatchBtn.style.display = 'none';
-
-    // Elegir equipo rival aleatorio diferente
-    do {
-      opponentTeam = TEAMS[Math.floor(Math.random() * TEAMS.length)];
-    } while (opponentTeam === playerTeam);
-
-    // Reset posiciones balón y portero
-    ballPos = { x: 350, y: 380 };
-    goaliePos = { x: 350, y: 120 };
-    goalieMoving = false;
-    ballMoving = false;
-    isShooting = false;
+    // Reset posición balón
+    ballDiv.style.left = '90px';
+    ballDiv.style.bottom = '130px';
 
     // Activar zonas para disparar
-    zonesContainer.style.pointerEvents = 'auto';
-
-    drawFrame();
-
-    animating = false;
+    goalZones.forEach(zone => {
+      zone.style.backgroundColor = 'transparent';
+      zone.style.pointerEvents = 'auto';
+      zone.addEventListener('click', onPenaltyShoot);
+      zone.addEventListener('keydown', onPenaltyShootKey);
+    });
   }
 
-  // Iniciar el juego o siguiente tiro
-  function onStartBtnClick() {
-    if (shotsTaken >= maxShots) return;
-
-    if (isShooting) return; // ya en animación
-
-    if (currentShotZone === null) {
-      messageBox.textContent = '¡Selecciona una zona para tirar!';
-      return;
+  // Manejar disparo penales con clic
+  function onPenaltyShoot(e) {
+    if(state.shotsTaken >= state.maxShots) return;
+    const zone = parseInt(e.currentTarget.dataset.zone);
+    doPenaltyShot(zone);
+  }
+  // Para teclado
+  function onPenaltyShootKey(e) {
+    if(e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if(state.shotsTaken >= state.maxShots) return;
+      const zone = parseInt(e.currentTarget.dataset.zone);
+      doPenaltyShot(zone);
     }
-
-    // Deshabilitar zonas y botón durante animación
-    zonesContainer.style.pointerEvents = 'none';
-
-    // Reset balón y portero para animación
-    ballPos = { x: 350, y: 380 };
-    goaliePos = { x: 350, y: 120 };
-    goalieMoving = true;
-    ballMoving = true;
-    isShooting = true;
-
-    startBtn.disabled = true;
-    messageBox.textContent = '¡Tirando penalti...';
-
-    animateShot();
   }
 
-  // Cambio dificultad
-  difficultySelect.addEventListener('change', () => {
-    difficulty = parseInt(difficultySelect.value);
-  });
+  // Función que simula un disparo de penalti
+  function doPenaltyShot(zoneSelected) {
+    // Desactivar zonas mientras animación
+    goalZones.forEach(z => z.style.pointerEvents = 'none');
 
-  // Cambio equipo
-  teamSelect.addEventListener('change', () => {
-    playerTeam = TEAMS[parseInt(teamSelect.value)];
-  });
+    state.shotsTaken++;
 
-  // Siguiente partido
-  nextMatchBtn.addEventListener('click', () => {
-    startGame();
-    nextMatchBtn.style.display = 'none';
-    startBtn.disabled = false;
-  });
+    // Movimiento jugador y balón
+    // Para simular, hacemos animación rápida usando setTimeout
 
-  // Selección zona tiro
-  shootZones.forEach(zone => {
-    zone.addEventListener('click', onZoneSelected);
-  });
+    // Probabilidad de gol depende dificultad y azar
+    // Probabilidad portero adivinar zona
+    // Portero elige zona random (0-8)
+    const keeperZone = Math.floor(Math.random() * 9);
 
-  // Botón iniciar / siguiente tiro
-  startBtn.addEventListener('click', () => {
-    if (shotsTaken === 0) {
-      // Primer disparo comienza el juego
-      if (!playerTeam) {
-        messageBox.textContent = 'Por favor selecciona tu equipo primero.';
-        return;
+    // Ajustamos dificultad (easy = portero menos efectivo)
+    let goalChance = 0.75;
+    if(state.difficulty === 'medium') goalChance = 0.65;
+    else if(state.difficulty === 'hard') goalChance = 0.5;
+
+    // Si portero adivina zona, menor chance gol
+    if(keeperZone === zoneSelected) goalChance -= 0.4;
+
+    // Si usuario equipo es fuerte (top equipos), le damos +0.05 chance gol
+    const strongTeams = ['FRA','BRA','ARG','ENG','ESP','GER','BEL','NED','URU'];
+    if(strongTeams.includes(state.userTeamCode)) goalChance += 0.05;
+
+    // Ajustamos chance según dificultad y tiros restantes
+    if(state.shotsTaken > 3 && state.userScore <= state.opponentScore) goalChance += 0.1;
+
+    // Resultado gol o atajada
+    const isGoal = Math.random() < goalChance;
+
+    // Animar balón y portero según resultado
+    animateShot(zoneSelected, keeperZone, isGoal).then(() => {
+      if(isGoal) {
+        state.userScore++;
+        matchInfo.textContent = '¡Gol! El portero no pudo detenerlo.';
+      } else {
+        state.opponentScore++;
+        matchInfo.textContent = 'Atajada del portero rival.';
       }
-      startGame();
-      startBtn.disabled = false;
-      messageBox.textContent = 'Selecciona una zona para tirar el penalti';
-    } else {
-      onStartBtnClick();
-    }
-  });
+      updateScore();
 
-  // Inicialización
-  function init() {
-    initTeamSelection();
-    playerTeam = TEAMS[0];
-    teamSelect.value = 0;
-    difficulty = parseInt(difficultySelect.value);
-    drawFrame();
-    messageBox.textContent = 'Selecciona tu equipo y presiona "Iniciar partido"';
+      if(state.shotsTaken === state.maxShots) {
+        finishMatch();
+      } else {
+        // Reactivar zonas
+        goalZones.forEach(z => z.style.pointerEvents = 'auto');
+      }
+    });
   }
 
-  init();
+  // Actualizar marcador en UI
+  function updateScore() {
+    const userTeam = getTeamByCode(state.userTeamCode);
+    const oppTeamCode = (state.currentMatch.teamA === state.userTeamCode) ? state.currentMatch.teamB : state.currentMatch.teamA;
+    const oppTeam = getTeamByCode(oppTeamCode);
+
+    scorePlayer.textContent = `${userTeam.name}: ${state.userScore}`;
+    scoreOpponent.textContent = `${oppTeam.name}: ${state.opponentScore}`;
+  }
+
+  // Animar balón y portero (simplificado)
+  function animateShot(zone, keeperZone, isGoal) {
+    return new Promise((resolve) => {
+      // Mover balón a zona
+      const zoneElem = goalZones[zone];
+      const keeperElem = goalZones[keeperZone];
+
+      const ballStartLeft = 90; // px
+      const ballStartBottom = 130;
+
+      // Obtener posición zona objetivo (relativa al penalty area)
+      const rect = zoneElem.getBoundingClientRect();
+      const parentRect = zoneElem.parentElement.getBoundingClientRect();
+
+      const left = rect.left - parentRect.left + rect.width/2 - 17; // 17 es la mitad del balón ancho aprox
+      const bottom = parentRect.bottom - rect.top - rect.height/2 - 15;
+
+      ballDiv.style.transition = 'left 0.6s ease, bottom 0.6s ease';
+      ballDiv.style.left = left + 'px';
+      ballDiv.style.bottom = bottom + 'px';
+
+      // Animar portero a zona elegida (keeperZone)
+      goalkeeperDiv.style.transition = 'left 0.6s ease, bottom 0.6s ease';
+      // Portero movimientos según zonas: 3 columnas (0-2 top, 3-5 mid, 6-8 low)
+      // left: zone 0,3,6 -> 0px, zone 1,4,7 -> 50px, zone 2,5,8 -> 100px
+      // bottom: zone 0,1,2 top 0px, 3,4,5 mid 50px, 6,7,8 low 100px
+
+      let keeperLeft = 0;
+      let keeperBottom = 0;
+      if([0,3,6].includes(keeperZone)) keeperLeft = 0;
+      else if([1,4,7].includes(keeperZone)) keeperLeft = 50;
+      else keeperLeft = 100;
+
+      if([0,1,2].includes(keeperZone)) keeperBottom = 0;
+      else if([3,4,5].includes(keeperZone)) keeperBottom = 50;
+      else keeperBottom = 100;
+
+      goalkeeperDiv.style.left = keeperLeft + 'px';
+      goalkeeperDiv.style.bottom = keeperBottom + 'px';
+
+      // Tras 700ms resolvemos animación
+      setTimeout(() => {
+        // Reset balón y portero posición
+        ballDiv.style.transition = '';
+        goalkeeperDiv.style.transition = '';
+        ballDiv.style.left = '90px';
+        ballDiv.style.bottom = '130px';
+        goalkeeperDiv.style.left = '110px';
+        goalkeeperDiv.style.bottom = '0px';
+
+        resolve();
+      }, 700);
+    });
+  }
+
+  // Finalizar partido penales
+  function finishMatch() {
+    // Determinar ganador
+    let userWon = state.userScore > state.opponentScore;
+    let draw = state.userScore === state.opponentScore;
+
+    if(draw) {
+      // Modo tanda muerte súbita
+      matchInfo.textContent = 'Empate. Tanda de muerte súbita, dispara de nuevo.';
+      state.maxShots++;
+      // Reactivar zonas
+      goalZones.forEach(z => z.style.pointerEvents = 'auto');
+    } else {
+      // Finalizamos
+      matchInfo.textContent = userWon ? '¡Has ganado el partido!' : 'Has perdido el partido.';
+      // Guardar resultado
+      state.currentMatch.played = true;
+      state.currentMatch.goalsA = (state.currentMatch.teamA === state.userTeamCode) ? state.userScore : state.opponentScore;
+      state.currentMatch.goalsB = (state.currentMatch.teamB === state.userTeamCode) ? state.userScore : state.opponentScore;
+
+      // Actualizar stats grupo
+      updateGroupStats();
+
+      // Mostrar resultado
+      matchSection.classList.remove('active');
+      resultSection.classList.add('active');
+      resultMessage.textContent = userWon ? '¡Felicidades! Has ganado este partido de penales.' : 'Has perdido este partido. Intenta con otro partido.';
+
+      // Permitir continuar
+      continueBtn.focus();
+    }
+  }
+
+  // Actualizar estadísticas grupo tras partido
+  function updateGroupStats() {
+    const grp = state.currentMatch.group;
+    const tA = state.groupsData[grp].find(t => t.code === state.currentMatch.teamA);
+    const tB = state.groupsData[grp].find(t => t.code === state.currentMatch.teamB);
+
+    tA.played++;
+    tB.played++;
+
+    tA.goalsFor += state.currentMatch.goalsA;
+    tA.goalsAgainst += state.currentMatch.goalsB;
+
+    tB.goalsFor += state.currentMatch.goalsB;
+    tB.goalsAgainst += state.currentMatch.goalsA;
+
+    if(state.currentMatch.goalsA > state.currentMatch.goalsB) {
+      tA.points += 3;
+    } else if(state.currentMatch.goalsB > state.currentMatch.goalsA) {
+      tB.points += 3;
+    } else {
+      tA.points += 1;
+      tB.points += 1;
+    }
+
+    renderGroups();
+    renderGroupMatches();
+    checkNextPhaseButton();
+  }
+
+  // Comprobar si se puede avanzar a octavos (fase siguiente)
+  function checkNextPhaseButton() {
+    // Para avanzar, usuario debe tener mínimo 2 partidos ganados o 6 puntos
+    const userGroup = Object.entries(state.groupsData).find(([g,ts]) => ts.some(t => t.code === state.userTeamCode))[0];
+    const userTeamData = state.groupsData[userGroup].find(t => t.code === state.userTeamCode);
+    nextPhaseBtn.disabled = !(userTeamData.points >= 6);
+  }
+
+  // Avanzar a octavos
+  function advanceToOctavos() {
+    state.phase = 'knockout';
+    tournamentSection.classList.remove('active');
+    matchSection.classList.remove('active');
+    resultSection.classList.remove('active');
+    celebrationSection.classList.remove('active');
+
+    // Generar partidos octavos
+    generateKnockoutMatches();
+    renderKnockoutMatches();
+  }
+
+  // Generar partidos eliminación directa octavos
+  // Para simplificar, sólo generamos partidos del usuario contra rivales aleatorios
+  function generateKnockoutMatches() {
+    // Para ejemplo, octavos: usuario vs random grupo distinto
+    state.knockoutMatches = [];
+
+    // Seleccionar rivales octavos random
+    const userTeamCode = state.userTeamCode;
+
+    // Simple: enfrentamos usuario con un equipo random no de su grupo
+    const userGroup = Object.entries(state.groupsData).find(([g,ts]) => ts.some(t => t.code === userTeamCode))[0];
+
+    let opponentsPool = TEAMS.filter(t => !GROUPS[userGroup].includes(t.code) && t.code !== userTeamCode);
+
+    // Elegir 1 rival aleatorio
+    const opponent = opponentsPool[Math.floor(Math.random() * opponentsPool.length)];
+
+    state.knockoutMatches.push({
+      round: 'Octavos',
+      teamA: userTeamCode,
+      teamB: opponent.code,
+      played: false,
+      goalsA: 0,
+      goalsB: 0,
+    });
+  }
+
+  // Render partidos eliminación directa
+  function renderKnockoutMatches() {
+    groupsDiv.innerHTML = '';
+
+    const matchesDiv = document.createElement('div');
+    matchesDiv.className = 'knockout-matches';
+
+    state.knockoutMatches.forEach((m,i) => {
+      const teamA = getTeamByCode(m.teamA);
+      const teamB = getTeamByCode(m.teamB);
+
+      const matchDiv = document.createElement('div');
+      matchDiv.className = 'team';
+      matchDiv.tabIndex = 0;
+      matchDiv.style.justifyContent = 'space-between';
+      matchDiv.style.fontWeight = '700';
+      matchDiv.style.backgroundColor = '#b32222cc';
+      matchDiv.style.borderRadius = '8px';
+      matchDiv.style.margin = '6px 0';
+      matchDiv.dataset.matchIndex = i;
+      matchDiv.textContent = `${teamA.name} vs ${teamB.name} `;
+
+      if(m.played){
+        matchDiv.textContent += `- Resultado: ${m.goalsA} - ${m.goalsB}`;
+        matchDiv.style.backgroundColor = '#4caf5088';
+      } else {
+        matchDiv.style.cursor = 'pointer';
+        matchDiv.addEventListener('click', () => {
+          startKnockoutPenaltyMatch(m);
+        });
+        matchDiv.addEventListener('keydown', (ev) => {
+          if(ev.key === 'Enter' || ev.key === ' ') {
+            ev.preventDefault();
+            startKnockoutPenaltyMatch(m);
+          }
+        });
+      }
+
+      matchesDiv.appendChild(matchDiv);
+    });
+
+    groupsDiv.appendChild(matchesDiv);
+  }
+
+  // Empezar partido penales eliminación directa
+  function startKnockoutPenaltyMatch(match) {
+    if(state.phase !== 'knockout') return;
+    if(match.played) return;
+
+    state.currentMatch = match;
+    state.userScore = 0;
+    state.opponentScore = 0;
+    state.shotsTaken = 0;
+    state.shotsGoalkeeper = 0;
+    state.maxShots = 5;
+    matchSection.classList.add('active');
+    tournamentSection.classList.remove('active');
+    resultSection.classList.remove('active');
+    celebrationSection.classList.remove('active');
+
+    const userTeam = getTeamByCode(state.userTeamCode);
+    const oppTeamCode = (match.teamA === state.userTeamCode) ? match.teamB : match.teamA;
+    const oppTeam = getTeamByCode(oppTeamCode);
+
+    matchTitle.textContent = `Eliminatoria: ${userTeam.name} vs ${oppTeam.name}`;
+    scorePlayer.textContent = `${userTeam.name}: 0`;
+    scoreOpponent.textContent = `${oppTeam.name}: 0`;
+    matchInfo.textContent = 'Selecciona una zona para tirar el penalti.';
+
+    playerDiv.className = 'player ' + (userTeam.color || 'blue');
+    goalkeeperDiv.className = 'goalkeeper ' + (oppTeam.color || 'yellow');
+
+    ballDiv.style.left = '90px';
+    ballDiv.style.bottom = '130px';
+
+    goalZones.forEach(zone => {
+      zone.style.backgroundColor = 'transparent';
+      zone.style.pointerEvents = 'auto';
+      zone.addEventListener('click', onPenaltyShoot);
+      zone.addEventListener('keydown', onPenaltyShootKey);
+    });
+  }
+
+  // Continuar tras partido
+  continueBtn.addEventListener('click', () => {
+    // Si estamos en grupos, mostrar grupos
+    if(state.phase === 'groups') {
+      tournamentSection.classList.add('active');
+      resultSection.classList.remove('active');
+      renderGroupMatches();
+    } else if(state.phase === 'knockout') {
+      tournamentSection.classList.add('active');
+      resultSection.classList.remove('active');
+      renderKnockoutMatches();
+    }
+    checkNextPhaseButton();
+  });
+
+  // Botón siguiente fase
+  nextPhaseBtn.addEventListener('click', () => {
+    advanceToOctavos();
+  });
+
+  // Botón reiniciar torneo
+  restartBtn.addEventListener('click', () => {
+    location.reload();
+  });
+
+  // Inicialización principal
+  loadTeamsSelector();
+  checkStartBtn();
+
+  teamSelect.addEventListener('change', checkStartBtn);
+  difficultySelect.addEventListener('change', () => {
+    // Opcional para actualizar dificultad
+  });
+
+  startBtn.addEventListener('click', startTournament);
 
 })();
-</script>
-
-</body>
-</html>
