@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mundial Penaltis 2022 - XFootballHub</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap');
+  body { margin:0; padding:0; font-family:Montserrat,sans-serif; background:#004d40; color:#f0f0f0;
+    display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+  h1 { margin:20px; font-size:2rem; text-align:center; }
+  section { width:100%; max-width:600px; padding:0 20px; }
+  .pais{cursor:pointer; display:flex; align-items:center; padding:8px;
+    border:1px solid #1de9b6; margin:4px; border-radius:6px; transition:0.3s;}
+  .pais img{width:24px; margin-right:10px;}
+  .pais:hover{background:rgba(29,233,182,0.2);}
+  button{margin:15px auto; padding:12px 20px; font-size:1rem; border:none;
+    background:#1de9b6; color:#004d40; border-radius:6px; cursor:pointer;}
+  select{margin:10px 0;padding:8px;font-size:1rem;border-radius:4px;}
+  table{width:100%;border-collapse:collapse;margin:20px 0;}
+  th,td{padding:6px;text-align:center;border:1px solid rgba(255,255,255,0.2);}
+  th{background:rgba(255,255,255,0.1);}
+  #goal{position:relative;width:300px;height:200px;background:#eee;
+    border:4px solid #004d40;margin:15px auto; touch-action:manipulation;}
+  .zone{position:absolute; border:1px solid rgba(0,0,0,0.1); box-sizing:border-box;}
+  .zone:hover{background:rgba(255,255,255,0.2);cursor:pointer;}
+  #info, #scoreboard{margin:10px auto; text-align:center;}
+  #info p, #scoreboard p{margin:5px;}
+  @media(max-width:600px){
+    h1{font-size:1.5rem;}
+    .pais img{width:20px;}
+    #goal{width:90vw;height:60vw;}
+    .zone{border-width:0.5px;}
+  }
+</style>
+</head>
+<body>
+
+<h1>Mundial Penaltis 2022</h1>
+
+<section id="fase-seleccion">
+  <h2>1. Elige tu selección</h2>
+  <div id="select-container"></div>
+  <div>
+    <label for="difficulty">Selecciona dificultad:</label>
+    <select id="difficulty">
+      <option>Fácil</option>
+      <option selected>Normal</option>
+      <option>Difícil</option>
+    </select>
+  </div>
+  <button id="comenzar">Comenzar fase de grupos</button>
+</section>
+
+<section id="fase-grupos" style="display:none;">
+  <h2>2. Tabla de Grupos</h2>
+  <div id="tabla-grupos"></div>
+  <button id="start-penal">Jugar octavos: penales</button>
+</section>
+
+<section id="fase-penal" style="display:none; text-align:center;">
+  <h2>3. Penales - Octavos (Ronda <span id="round"></span>)</h2>
+  <div id="goal"></div>
+  <div id="info">
+    <p>Modo: <span id="modo"></span></p>
+    <p>Disparos <span id="shot"></span> de 5</p>
+    <p>Marcador: <span id="score"></span></p>
+    <p>Dificultad: <span id="diff-display"></span></p>
+  </div>
+  <div>
+    <button id="next-round" style="display:none;">Siguiente ronda</button>
+    <button id="reset-torneo" style="display:none;">Reiniciar torneo</button>
+  </div>
+  <div id="scoreboard"></div>
+</section>
+
+<audio id="sound-goal" src="https://freesound.org/data/previews/341/341695_6245-lq.mp3"></audio>
+<audio id="sound-save" src="https://freesound.org/data/previews/341/341692_6245-lq.mp3"></audio>
+
+<script>
+  const grupos = {
+    A:["Qatar","Ecuador","Senegal","Países Bajos"],
+    B:["Inglaterra","Irán","Estados Unidos","Gales"],
+    C:["Argentina","Arabia Saudí","México","Polonia"],
+    D:["Francia","Australia","Dinamarca","Túnez"],
+    E:["España","Costa Rica","Alemania","Japón"],
+    F:["Bélgica","Canadá","Marruecos","Croacia"],
+    G:["Brasil","Serbia","Suiza","Camerún"],
+    H:["Portugal","Ghana","Uruguay","Corea del Sur"]
+  };
+  const difficultyLevels = { "Fácil":0.8, "Normal":0.6, "Difícil":0.4 };
+
+  let selected=null, tablaResultados=null, ronda=1,
+      modo='tirador', disparos=0, scoreA=0, scoreB=0,
+      dificultad=0.6;
+
+  const selCont=document.getElementById('select-container');
+  Object.values(grupos).flat().forEach(p=>{
+    let d=document.createElement('div');
+    d.className='pais';
+    d.innerHTML=`<img src="https://countryflagsapi.com/png/${p}" alt="${p}"> ${p}`;
+    d.onclick=()=>{
+      document.querySelectorAll('.pais').forEach(x=>x.style.background='');
+      d.style.background='rgba(255,255,255,0.2)';
+      selected=p;
+      document.getElementById('comenzar').style.display='inline-block';
+    };
+    selCont.appendChild(d);
+  });
+
+  document.getElementById('comenzar').onclick = () => {
+    dificultad = difficultyLevels[ document.getElementById('difficulty').value ];
+    if(!selected) return;
+    mostrarTablaGrupos();
+    document.getElementById('fase-seleccion').style.display='none';
+    document.getElementById('fase-grupos').style.display='block';
+  };
+
+  function simularGrupos(){
+    const resultados=[];
+    for(const g in grupos){
+      const t=grupos[g].map(p=>({pais:p, p:0, gf:0,gc:0}));
+      for(let i=0;i<t.length;i++)for(let j=i+1;j<t.length;j++){
+        const A=t[i],B=t[j];
+        const fuerzaA=(Math.random() + (A.pais===selected?1:0))/1.5;
+        const fuerzaB=(Math.random() + (B.pais===selected?1:0))/1.5;
+        const golesA=Math.round(Math.random()*3*fuerzaA);
+        const golesB=Math.round(Math.random()*3*fuerzaB);
+        A.gf+=golesA;A.gc+=golesB;
+        B.gf+=golesB;B.gc+=golesA;
+        if(golesA>golesB) A.p+=3; else if(golesB>golesA) B.p+=3;
+        else {A.p++;B.p++;}
+      }
+      t.sort((a,b)=> b.p - a.p || (b.gf-b.gc)-(a.gf-a.gc));
+      resultados.push({grupo:g,tabla:t});
+    }
+    return resultados;
+  }
+
+  function mostrarTablaGrupos(){
+    tablaResultados=simularGrupos();
+    let html='';
+    tablaResultados.forEach(d=>{
+      html+=`<table><tr><th colspan="5">Grupo ${d.grupo}</th></tr>
+        <tr><th>#</th><th>País</th><th>Pts</th><th>GF</th><th>GC</th></tr>`;
+      d.tabla.forEach((t,i)=>{
+        html+=`<tr><td>${i+1}</td><td>${t.pais}</td><td>${t.p}</td><td>${t.gf}</td><td>${t.gc}</td></tr>`;
+      });
+      html+='</table>';
+    });
+    document.getElementById('tabla-grupos').innerHTML=html;
+    document.getElementById('start-penal').style.display='inline-block';
+  }
+
+  document.getElementById('start-penal').onclick = () => {
+    ronda=1; modo='tirador'; disparos=0; scoreA=0;scoreB=0;
+    document.getElementById('fase-grupos').style.display='none';
+    document.getElementById('fase-penal').style.display='block';
+    updateInfo();
+  };
+
+  const goal=document.getElementById('goal');
+  for(let r=0;r<3;r++)for(let c=0;c<3;c++){
+    let z=document.createElement('div');
+    z.className='zone';
+    z.style.top=`${r*33.33}%`; z.style.left=`${c*33.33}%`;
+    z.style.width='33.33%'; z.style.height='33.33%';
+    z.onclick=()=>tiro(r,c);
+    goal.appendChild(z);
+  }
+
+  function updateInfo(){
+    document.getElementById('round').textContent=ronda;
+    document.getElementById('modo').textContent=modo==='tirador'? 'Tirador' : 'Portero';
+    document.getElementById('shot').textContent=disparos;
+    document.getElementById('score').textContent=`${scoreA} – ${scoreB}`;
+    document.getElementById('diff-display').textContent=document.getElementById('difficulty').value;
+  }
+
+  function tiro(r,c){
+    if(disparos>=5) return;
+    disparos++;
+    let prob = dificultad * (modo==='tirador'?1:0.8);
+    if(Math.random() < prob){
+      if(modo==='tirador'){ scoreA++; document.getElementById('sound-goal').play();}
+      else { scoreB++; document.getElementById('sound-save').play();}
+    }else{
+      if(modo==='tirador'){ scoreB++; document.getElementById('sound-save').play();}
+      else { scoreA++; document.getElementById('sound-goal').play();}
+    }
+    updateInfo();
+    if(disparos===5){
+      setTimeout(()=>{
+        if(ronda<5){
+          ronda++; disparos=0;
+          modo = modo==='tirador'? 'portero' : 'tirador';
+          updateInfo();
+        } else finalizar();
+      },800);
+    }
+  }
+
+  function finalizar(){
+    let msg = scoreA>scoreB? "🏆 ¡Ganaste el torneo!" : "😞 Lo siento, perdiste túvieras más penales";
+    document.getElementById('scoreboard').innerHTML = `<h3>${msg}</h3><p>Resultado final: ${scoreA} – ${scoreB}</p>`;
+    document.getElementById('reset-torneo').style.display='inline-block';
+  }
+
+  document.getElementById('reset-torneo').onclick = () =>{
+    window.location.reload();
+  };
+</script>
+
+</body>
+</html>
